@@ -245,6 +245,10 @@ export class TextPath extends Shape<TextPathConfig> {
   _setTextData() {
     this.chars = this._graphemeSplit(this.text());
     this._measureLine();
+
+    var size = this._getTextSize(this.text())
+    this.textWidth = size.width;
+    this.textHeight = size.height;
   }
   getSelfRect() {
     var fontSize = this.fontSize();

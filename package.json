@@ -27,7 +27,8 @@
     "rollup": "rollup -c",
     "clean": "rm -rf ./lib && rm -rf ./types && rm -rf ./cmj && rm -rf ./test-build",
     "watch": "rollup -c -w",
-    "size": "size-limit"
+    "size": "size-limit",
+    "min": "esbuild konva.js --minify --outfile=konva.min.js"
   },
   "targets": {
     "none": {}
@@ -65,8 +66,8 @@
     "@types/mocha": "^9.1.0",
     "canvas": "^2.9.0",
     "chai": "4.3.6",
-    "filehound": "^1.17.5",
-    "gulp": "^4.0.2",
+    "filehound": "1.17.5",
+    "gulp": "4.0.2",
     "gulp-concat": "^2.6.1",
     "gulp-connect": "^5.7.0",
     "gulp-exec": "^5.0.0",
@@ -89,7 +90,11 @@
     "size-limit": "^7.0.8",
     "ts-mocha": "^9.0.2",
     "ts-node": "^9.1.1",
-    "typescript": "4.5.5"
+    "typescript": "4.5.5",
+    "fs": "0.0.1-security",
+    "cssnano": "5.1.7",
+    "postcss": "8.4.12",
+    "esbuild": "0.14.38"
   },
   "keywords": [
     "canvas",

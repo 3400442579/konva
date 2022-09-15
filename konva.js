@@ -1647,8 +1647,11 @@
        * @method
        * @name Konva.Context#clip
        */
-      clip() {
-          this._context.clip();
+      clip(path2d) {
+          if (path2d)
+              this._context.clip(path2d);
+          else
+              this._context.clip();
       }
       /**
        * closePath function.
@@ -5422,14 +5425,18 @@
               context.transform(m[0], m[1], m[2], m[3], m[4], m[5]);
               context.beginPath();
               if (clipFunc) {
-                  clipFunc.call(this, context, this);
+                  let path2d = clipFunc.call(this, context, this);
+                  if (path2d instanceof Path2D)
+                      context.clip(path2d);
+                  else
+                      context.clip();
               }
               else {
                   var clipX = this.clipX();
                   var clipY = this.clipY();
                   context.rect(clipX, clipY, clipWidth, clipHeight);
+                  context.clip();
               }
-              context.clip();
               m = transform.copy().invert().getMatrix();
               context.transform(m[0], m[1], m[2], m[3], m[4], m[5]);
           }
@@ -13397,6 +13404,9 @@
       _setTextData() {
           this.chars = this._graphemeSplit(this.text());
           this._measureLine();
+          var size = this._getTextSize(this.text());
+          this.textWidth = size.width;
+          this.textHeight = size.height;
       }
       getSelfRect() {
           var fontSize = this.fontSize();
