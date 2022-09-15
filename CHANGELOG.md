@@ -3,6 +3,39 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+### 8.3.12 (2022-08-29)
+
+- `ellipsis` fixes for `Konva.Text`
+- Allow reset component attributes via overloader
+
+### 8.3.11 (2022-08-05)
+
+- Fix `Konva.Label` position when tag attributes are changed
+- Fix incorrect ellipsis display for `Konva.Text`
+- Fix `click` event trigger on parent containers on touch devices
+- Fix incorrect `mouseleave` event trigger when drag is finished
+
+### 8.3.10 (2022-06-20)
+
+- Skip `Konva.Transformer` in `container.getClientRect()` calculations
+
+### 8.3.9 (2022-05-27)
+
+- Typescript fixes
+
+### 8.3.8 (2022-05-05)
+
+- Disable all exports in `package.json`
+
+### 8.3.7 (2022-05-04)
+
+- Migrate to CommonJS exports only
+
+### 8.3.6 (2022-04-27)
+
+- Better exports definitions. Importing `Konva` should work better in different bundlers and test environments.
+- `imageSmoothingEnabled` option for `node.toDataURL()`, `node.toCanvas()` and `node.toImage()`
+
 ## 8.3.5 (2022-03-21)
 
 - Quick fix for `toCanvas()` and `toDataURL()` size calculation.

@@ -455,6 +455,39 @@ describe('Text', function () {
   });
 
   // ======================================================
+  it('text single line with ellipsis when there is no need in them', function () {
+    var stage = addStage();
+    var layer = new Konva.Layer();
+
+    var rect = new Konva.Rect({
+      x: 10,
+      y: 10,
+      width: 380,
+      height: 300,
+      fill: 'red',
+    });
+
+    var text = new Konva.Text({
+      width: 497,
+      height: 49,
+      text: 'Body text',
+      fill: 'black',
+      fontSize: 40,
+      shadowColor: 'black',
+      shadowOpacity: 1,
+      lineHeight: 1.2,
+      letterSpacing: 0,
+      ellipsis: true,
+    });
+
+    layer.add(rect).add(text);
+    stage.add(layer);
+
+    assert.equal(text.textArr.length, 1);
+    assert.equal(text.textArr[0].text.slice(-1), 't');
+  });
+
+  // ======================================================
   it('multiline with ellipsis', function () {
     var stage = addStage();
     var layer = new Konva.Layer();
@@ -483,6 +516,39 @@ describe('Text', function () {
       assert.equal(
         layer.getContext().getTrace(false, true),
         "clearRect(0,0,578,200);save();transform(1,0,0,1,10,10);font=normal normal 14px Arial;textBaseline=middle;textAlign=left;translate(0,0);save();fillStyle=black;fillText(HEADING,18,7);restore();save();fillStyle=black;fillText(,50,21);restore();save();fillStyle=black;fillText(All the world's,7,35);restore();save();fillStyle=black;fillText(a stage,,25,49);restore();save();fillStyle=black;fillText(merely,28,63);restore();save();fillStyle=black;fillText(players. They,7,77);restore();save();fillStyle=black;fillText(have…,27,91);restore();restore();"
+      );
+    }
+  });
+
+  // ======================================================
+  it('multiline with ellipsis and lineWidth less than maxWidth', function () {
+    var stage = addStage();
+    var layer = new Konva.Layer();
+
+    var text = new Konva.Text({
+      x: 10,
+      y: 10,
+      text: "HEADING\nAll the\n world's a stage, merely players. They have theirrrrrrr exits and theirrrrr entrances; And one man in his time plays many parts.",
+      fontSize: 14,
+      fontFamily: 'Arial',
+      fontStyle: 'normal',
+      width: 100,
+      padding: 0,
+      align: 'center',
+      height: 30,
+      ellipsis: true,
+    });
+
+    layer.add(text);
+    stage.add(layer);
+
+    assert.equal(text.textArr.length, 2);
+    assert.equal(text.textArr[1].text.slice(-1), '…');
+
+    if (isBrowser) {
+      assert.equal(
+        layer.getContext().getTrace(false, true),
+        'clearRect(0,0,578,200);save();transform(1,0,0,1,10,10);font=normal normal 14px Arial;textBaseline=middle;textAlign=left;translate(0,0);save();fillStyle=black;fillText(HEADING,18,7);restore();save();fillStyle=black;fillText(All the…,23,21);restore();restore();'
       );
     }
   });
