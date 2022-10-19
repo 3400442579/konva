@@ -446,6 +446,36 @@ describe('Node', function () {
   });
 
   // ======================================================
+  it('export with smooth disabled', function (done) {
+    loadImage('lion.png', (imageObj) => {
+      var stage = addStage();
+      var layer = new Konva.Layer({
+        imageSmoothingEnabled: false,
+      });
+      stage.add(layer);
+
+      var image = new Konva.Image({
+        x: -50,
+        y: -50,
+        image: imageObj,
+        scaleX: 5,
+        scaleY: 5,
+      });
+      layer.add(image);
+
+      const canvas = layer.toCanvas({
+        imageSmoothingEnabled: false,
+        pixelRatio: layer.getCanvas().getPixelRatio(),
+      });
+      layer.draw();
+      compareLayerAndCanvas(layer, canvas);
+
+      // just check clone without crashes
+      done();
+    });
+  });
+
+  // ======================================================
   it("listen and don't listen", function () {
     var stage = addStage();
     var layer = new Konva.Layer();
@@ -3242,6 +3272,25 @@ describe('Node', function () {
     // is also 11 because the node is a circle
     assert.equal(circle.size().width, 11);
     assert.equal(circle.size().height, 11);
+  });
+
+  it('overloaders reset', function () {
+    var stage = addStage();
+    var layer = new Konva.Layer();
+    var circle = new Konva.Circle({
+      radius: 70,
+      fill: 'green',
+    });
+
+    layer.add(circle);
+    stage.add(layer);
+
+    circle.scale({ x: 2, y: 2 });
+
+    circle.scale(undefined);
+
+    assert.equal(circle.scaleX(), 1);
+    assert.equal(circle.scaleY(), 1);
   });
 
   it('cache shape', function () {

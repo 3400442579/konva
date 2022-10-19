@@ -86,7 +86,7 @@ var CONTEXT_PROPERTIES = [
   'globalAlpha',
   'globalCompositeOperation',
   'imageSmoothingEnabled',
-];
+] as const;
 
 const traceArrMax = 100;
 /**
@@ -118,7 +118,6 @@ export class Context {
 
   constructor(canvas: Canvas) {
     this.canvas = canvas;
-    this._context = canvas._canvas.getContext('2d') as CanvasRenderingContext2D;
 
     if (Konva.enableTrace) {
       this.traceArr = [];
@@ -705,6 +704,11 @@ export class Context {
   }
 }
 
+// supported context properties
+type CanvasContextProps = Pick<CanvasRenderingContext2D, typeof CONTEXT_PROPERTIES[number]>;
+
+export interface Context extends CanvasContextProps {};
+
 CONTEXT_PROPERTIES.forEach(function (prop) {
   Object.defineProperty(Context.prototype, prop, {
     get() {
@@ -717,6 +721,10 @@ CONTEXT_PROPERTIES.forEach(function (prop) {
 });
 
 export class SceneContext extends Context {
+  constructor(canvas: Canvas) {
+    super(canvas);
+    this._context = canvas._canvas.getContext('2d') as CanvasRenderingContext2D;
+  }
   _fillColor(shape: Shape) {
     var fill = shape.fill();
 
@@ -856,6 +864,12 @@ export class SceneContext extends Context {
 }
 
 export class HitContext extends Context {
+  constructor(canvas: Canvas) {
+    super(canvas);
+    this._context = canvas._canvas.getContext('2d', {
+      willReadFrequently: true,
+    }) as CanvasRenderingContext2D;
+  }
   _fill(shape) {
     this.save();
     this.setAttr('fillStyle', shape.colorKey);

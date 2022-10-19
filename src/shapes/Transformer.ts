@@ -1219,6 +1219,16 @@ export class Transformer extends Group {
     return Node.prototype.toObject.call(this);
   }
 
+  getClientRect() {
+    if (this.nodes().length > 0) {
+      return super.getClientRect();
+    } else {
+      // if we are detached return zero size
+      // so it will be skipped in calculations
+      return { x: 0, y: 0, width: 0, height: 0 };
+    }
+  }
+
   nodes: GetSet<Node[], this>;
   enabledAnchors: GetSet<string[], this>;
   rotationSnaps: GetSet<number[], this>;
