@@ -25,6 +25,7 @@ export type ShapeConfigHandler<TTarget> = {
 export type LineJoin = 'round' | 'bevel' | 'miter';
 export type LineCap = 'butt' | 'round' | 'square';
 
+
 export interface ShapeConfig extends NodeConfig {
   fill?: string;
   fillPatternImage?: HTMLImageElement;
@@ -79,6 +80,7 @@ export interface ShapeConfig extends NodeConfig {
   dashOffset?: number;
   dashEnabled?: boolean;
   perfectDrawEnabled?: boolean;
+  shadows?: string;
 }
 
 export interface ShapeGetClientRectConfig {
@@ -260,13 +262,13 @@ export class Shape<
         const matrix =
           typeof DOMMatrix === 'undefined'
             ? {
-                a: m[0], // Horizontal scaling. A value of 1 results in no scaling.
-                b: m[1], // Vertical skewing.
-                c: m[2], // Horizontal skewing.
-                d: m[3],
-                e: m[4], // Horizontal translation (moving).
-                f: m[5], // Vertical translation (moving).
-              }
+              a: m[0], // Horizontal scaling. A value of 1 results in no scaling.
+              b: m[1], // Vertical skewing.
+              c: m[2], // Horizontal skewing.
+              d: m[3],
+              e: m[4], // Horizontal translation (moving).
+              f: m[5], // Vertical translation (moving).
+            }
             : new DOMMatrix(m);
 
         pattern.setTransform(matrix);
@@ -637,11 +639,55 @@ export class Shape<
         context._applyGlobalCompositeOperation(this);
       }
 
+      if (this.attrs.shadows) {
+        var parseShadow = function (shadow: string) {
+          var reOffsetsAndBlur = /(?:\s|^)(-?\d+(?:\.\d*)?(?:px)?(?:\s?|$))?(-?\d+(?:\.\d*)?(?:px)?(?:\s?|$))?(\d+(?:\.\d*)?(?:px)?)?(?:\s?|$)(?:$|\s)/;
+          var shadowStr = shadow.trim(),
+            offsetsAndBlur = reOffsetsAndBlur.exec(shadowStr) || [],
+            color =
+              shadowStr.replace(reOffsetsAndBlur, '') ||
+              'rgb(0,0,0)';
+
+          return {
+            color: color.trim(),
+            offsetX: parseFloat(offsetsAndBlur[1]) || 0,
+            offsetY: parseFloat(offsetsAndBlur[2]) || 0,
+            blur: parseFloat(offsetsAndBlur[3]) || 0,
+          };
+        }
+        var arrs = this.attrs.shadows.split(';')
+        for (var i = arrs.length - 1; i >= 0; i--) {
+          context.save();
+          var shadow = parseShadow(arrs[i]);
+          var color = shadow.color,
+            blur = shadow.blur,
+            offset = {
+              x: shadow.offsetX,
+              y: shadow.offsetY,
+            },
+            scale = this.getAbsoluteScale(),
+            ratio1 = context.canvas.getPixelRatio(),
+            scaleX = scale.x * ratio1,
+            scaleY = scale.y * ratio1;
+
+          context.setAttr('shadowColor', color);
+          context.setAttr('shadowBlur',
+            blur * Math.min(Math.abs(scaleX), Math.abs(scaleY))
+          );
+          context.setAttr('shadowOffsetX', offset.x * scaleX);
+          context.setAttr('shadowOffsetY', offset.y * scaleY);
+
+          drawFunc.call(this, context, this);
+          context.restore();
+        }
+      }
+
       if (hasShadow) {
         context._applyShadow(this);
       }
 
       drawFunc.call(this, context, this);
+
     }
     context.restore();
     return this;
@@ -821,6 +867,7 @@ export class Shape<
   strokeWidth: GetSet<number, this>;
   hitStrokeWidth: GetSet<number | 'auto', this>;
   strokeLinearGradientColorStops: GetSet<Array<number | string>, this>;
+  shadows: GetSet<string, this>;
 }
 
 Shape.prototype._fillFunc = _fillFunc;
@@ -1998,3 +2045,6 @@ Factory.backCompat(Shape, {
   getDrawHitFunc: 'getHitFunc',
   setDrawHitFunc: 'setHitFunc',
 });
+
+Factory.addGetterSetter(Shape, 'shadows', null);
+

@@ -20,26 +20,16 @@ export function stringToArray(string: string) {
   return Array.from(string);
 }
 
-export interface TextStyle {
-  start: number // start position of the style
-  end?: number // end position of the style, if undefined it means until the end
-  fontFamily: string
-  fontSize: number
-  fontStyle: 'normal' | 'italic' | 'bold' | 'italic bold' | 'bold italic'
-  fontVariant: 'normal' | 'small-caps'
-  textDecoration: '' | 'underline' | 'line-through' | 'underline line-through'
-  fill: string
-  stroke: string,
-  deltaY: number,
-}
+export interface Style {
+  fontSize: number;
+  fontStyle: string;
+  family: string;
+  fontVariant: string;
+  fill: string;
+  stroke: string
 
-type TextPart = {
-  text: string
-  width: number
-  style: Omit<TextStyle, 'start' | 'end'>
 }
-
-export interface MsTextConfig extends ShapeConfig {
+export interface TextConfig extends ShapeConfig {
   text?: string;
   fontFamily?: string;
   fontSize?: number;
@@ -53,7 +43,6 @@ export interface MsTextConfig extends ShapeConfig {
   letterSpacing?: number;
   wrap?: string;
   ellipsis?: boolean;
-  textStyles?: TextStyle[];
 }
 
 // constants
@@ -66,7 +55,7 @@ var AUTO = 'auto',
   DASH = '-',
   LEFT = 'left',
   TEXT = 'text',
-  TEXT_UPPER = 'MsText',
+  TEXT_UPPER = 'Text',
   TOP = 'top',
   BOTTOM = 'bottom',
   MIDDLE = 'middle',
@@ -93,7 +82,6 @@ var AUTO = 'auto',
     'wrap',
     'ellipsis',
     'letterSpacing',
-    'textStyles',
   ],
   // cached variables
   attrChangeListLen = ATTR_CHANGE_LIST.length;
@@ -173,7 +161,7 @@ function checkDefaultFill(config) {
  *   fill: 'green'
  * });
  */
-export class MsText extends Shape<MsTextConfig> {
+export class Text extends Shape<TextConfig> {
   textArr: Array<{ text: string; width: number; lastInParagraph: boolean }>;
   _partialText: string;
   _partialTextX = 0;
@@ -181,7 +169,7 @@ export class MsText extends Shape<MsTextConfig> {
 
   textWidth: number;
   textHeight: number;
-  constructor(config?: MsTextConfig) {
+  constructor(config?: TextConfig) {
     super(checkDefaultFill(config));
     // update text data for certain attr changes
     for (var n = 0; n < attrChangeListLen; n++) {
@@ -446,23 +434,11 @@ export class MsText extends Shape<MsTextConfig> {
       // align = this.align(),
       shouldWrap = wrap !== NONE,
       wrapAtWord = wrap !== CHAR && shouldWrap,
-      shouldAddEllipsis = this.ellipsis(),
-      styles = this.textStyles();
+      shouldAddEllipsis = this.ellipsis();
 
     this.textArr = [];
     getDummyContext().font = this._getContextFont();
     var additionalWidth = shouldAddEllipsis ? this._getTextWidth(ELLIPSIS) : 0;
-
-
-    const stylesByChar = stringToArray(this.text()).map((char, index) => {
-      return {
-        char,
-        style: styles.find((style) => index >= style.start && (typeof style.end === 'undefined' || style.end >= index))!
-      }
-    })
-
-
-
     for (var i = 0, max = lines.length; i < max; ++i) {
       var line = lines[i];
 
@@ -644,13 +620,12 @@ export class MsText extends Shape<MsTextConfig> {
   text: GetSet<string, this>;
   wrap: GetSet<string, this>;
   ellipsis: GetSet<boolean, this>;
-  textStyles!: GetSet<TextStyle[], this>;
 }
 
-MsText.prototype._fillFunc = _fillFunc;
-MsText.prototype._strokeFunc = _strokeFunc;
-MsText.prototype.className = TEXT_UPPER;
-MsText.prototype._attrsAffectingSize = [
+Text.prototype._fillFunc = _fillFunc;
+Text.prototype._strokeFunc = _strokeFunc;
+Text.prototype.className = TEXT_UPPER;
+Text.prototype._attrsAffectingSize = [
   'text',
   'fontSize',
   'padding',
@@ -658,7 +633,7 @@ MsText.prototype._attrsAffectingSize = [
   'lineHeight',
   'letterSpacing',
 ];
-_registerNode(MsText);
+_registerNode(Text);
 
 /**
  * get/set width of text area, which includes padding.
@@ -677,7 +652,7 @@ _registerNode(MsText);
  * text.width('auto');
  * text.width() // will return calculated width, and not "auto"
  */
-Factory.overWriteSetter(MsText, 'width', getNumberOrAutoValidator());
+Factory.overWriteSetter(Text, 'width', getNumberOrAutoValidator());
 
 /**
  * get/set the height of the text area, which takes into account multi-line text, line heights, and padding.
@@ -697,7 +672,7 @@ Factory.overWriteSetter(MsText, 'width', getNumberOrAutoValidator());
  * text.height() // will return calculated height, and not "auto"
  */
 
-Factory.overWriteSetter(MsText, 'height', getNumberOrAutoValidator());
+Factory.overWriteSetter(Text, 'height', getNumberOrAutoValidator());
 
 /**
  * get/set font family
@@ -712,7 +687,7 @@ Factory.overWriteSetter(MsText, 'height', getNumberOrAutoValidator());
  * // set font family
  * text.fontFamily('Arial');
  */
-Factory.addGetterSetter(MsText, 'fontFamily', 'Arial');
+Factory.addGetterSetter(Text, 'fontFamily', 'Arial');
 
 /**
  * get/set font size in pixels
@@ -727,7 +702,7 @@ Factory.addGetterSetter(MsText, 'fontFamily', 'Arial');
  * // set font size to 22px
  * text.fontSize(22);
  */
-Factory.addGetterSetter(MsText, 'fontSize', 12, getNumberValidator());
+Factory.addGetterSetter(Text, 'fontSize', 12, getNumberValidator());
 
 /**
  * get/set font style.  Can be 'normal', 'italic', or 'bold' or even 'italic bold'.  'normal' is the default.
@@ -743,7 +718,7 @@ Factory.addGetterSetter(MsText, 'fontSize', 12, getNumberValidator());
  * text.fontStyle('bold');
  */
 
-Factory.addGetterSetter(MsText, 'fontStyle', NORMAL);
+Factory.addGetterSetter(Text, 'fontStyle', NORMAL);
 
 /**
  * get/set font variant.  Can be 'normal' or 'small-caps'.  'normal' is the default.
@@ -759,7 +734,7 @@ Factory.addGetterSetter(MsText, 'fontStyle', NORMAL);
  * text.fontVariant('small-caps');
  */
 
-Factory.addGetterSetter(MsText, 'fontVariant', NORMAL);
+Factory.addGetterSetter(Text, 'fontVariant', NORMAL);
 
 /**
  * get/set padding
@@ -775,7 +750,7 @@ Factory.addGetterSetter(MsText, 'fontVariant', NORMAL);
  * text.padding(10);
  */
 
-Factory.addGetterSetter(MsText, 'padding', 0, getNumberValidator());
+Factory.addGetterSetter(Text, 'padding', 0, getNumberValidator());
 
 /**
  * get/set horizontal align of text.  Can be 'left', 'center', 'right' or 'justify'
@@ -794,7 +769,7 @@ Factory.addGetterSetter(MsText, 'padding', 0, getNumberValidator());
  * text.align('right');
  */
 
-Factory.addGetterSetter(MsText, 'align', LEFT);
+Factory.addGetterSetter(Text, 'align', LEFT);
 
 /**
  * get/set vertical align of text.  Can be 'top', 'middle', 'bottom'.
@@ -810,7 +785,7 @@ Factory.addGetterSetter(MsText, 'align', LEFT);
  * text.verticalAlign('middle');
  */
 
-Factory.addGetterSetter(MsText, 'verticalAlign', TOP);
+Factory.addGetterSetter(Text, 'verticalAlign', TOP);
 
 /**
  * get/set line height.  The default is 1.
@@ -826,7 +801,7 @@ Factory.addGetterSetter(MsText, 'verticalAlign', TOP);
  * text.lineHeight(2);
  */
 
-Factory.addGetterSetter(MsText, 'lineHeight', 1, getNumberValidator());
+Factory.addGetterSetter(Text, 'lineHeight', 1, getNumberValidator());
 
 /**
  * get/set wrap.  Can be "word", "char", or "none". Default is "word".
@@ -844,7 +819,7 @@ Factory.addGetterSetter(MsText, 'lineHeight', 1, getNumberValidator());
  * text.wrap('word');
  */
 
-Factory.addGetterSetter(MsText, 'wrap', WORD);
+Factory.addGetterSetter(Text, 'wrap', WORD);
 
 /**
  * get/set ellipsis. Can be true or false. Default is false. If ellipses is true,
@@ -862,7 +837,7 @@ Factory.addGetterSetter(MsText, 'wrap', WORD);
  * text.ellipsis(true);
  */
 
-Factory.addGetterSetter(MsText, 'ellipsis', false, getBooleanValidator());
+Factory.addGetterSetter(Text, 'ellipsis', false, getBooleanValidator());
 
 /**
  * set letter spacing property. Default value is 0.
@@ -871,7 +846,7 @@ Factory.addGetterSetter(MsText, 'ellipsis', false, getBooleanValidator());
  * @param {Number} letterSpacing
  */
 
-Factory.addGetterSetter(MsText, 'letterSpacing', 0, getNumberValidator());
+Factory.addGetterSetter(Text, 'letterSpacing', 0, getNumberValidator());
 
 /**
  * get/set text
@@ -887,7 +862,7 @@ Factory.addGetterSetter(MsText, 'letterSpacing', 0, getNumberValidator());
  * text.text('Hello world!');
  */
 
-Factory.addGetterSetter(MsText, 'text', '', getStringValidator());
+Factory.addGetterSetter(Text, 'text', '', getStringValidator());
 
 /**
  * get/set text decoration of a text.  Possible values are 'underline', 'line-through' or combination of these values separated by space
@@ -909,28 +884,4 @@ Factory.addGetterSetter(MsText, 'text', '', getStringValidator());
  * text.textDecoration('underline line-through');
  */
 
-Factory.addGetterSetter(MsText, 'textDecoration', '');
-
-
-/**
- * get/set textStyles
- * @name Konva.Text#textStyles
- * @method
- * @param {TextStyle[]} textStyles
- * @returns {String}
- * @example
- * // set styles
- * text.textStyles([{ start: 0, fontFamily: 'Roboto' }]);
- */
-const defaultStyle: TextStyle = {
-  start: 0,
-  fill: 'black',
-  stroke: 'black',
-  fontFamily: 'Arial',
-  fontSize: 12,
-  fontStyle: 'normal',
-  fontVariant: 'normal',
-  textDecoration: '',
-  deltaY: 0
-}
-Factory.addGetterSetter(MsText, 'textStyles', [defaultStyle]);
+Factory.addGetterSetter(Text, 'textDecoration', '');

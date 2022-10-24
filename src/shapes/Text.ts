@@ -1,7 +1,6 @@
 import { Util } from '../Util';
 import { Factory } from '../Factory';
 import { Shape, ShapeConfig } from '../Shape';
-import { Konva } from '../Global';
 import {
   getNumberValidator,
   getStringValidator,
@@ -34,6 +33,7 @@ export interface TextConfig extends ShapeConfig {
   letterSpacing?: number;
   wrap?: string;
   ellipsis?: boolean;
+  styles?: object;
 }
 
 // constants
@@ -46,7 +46,7 @@ var AUTO = 'auto',
   DASH = '-',
   LEFT = 'left',
   TEXT = 'text',
-  TEXT_UPPER = 'Text',
+  TEXT_UPPER = 'MsText',
   TOP = 'top',
   BOTTOM = 'bottom',
   MIDDLE = 'middle',
@@ -73,6 +73,7 @@ var AUTO = 'auto',
     'wrap',
     'ellipsis',
     'letterSpacing',
+    'styles',
   ],
   // cached variables
   attrChangeListLen = ATTR_CHANGE_LIST.length;
@@ -277,25 +278,34 @@ export class Text extends Shape<TextConfig> {
         context.stroke();
         context.restore();
       }
-      if (letterSpacing !== 0 || align === JUSTIFY) {
+
+      if (letterSpacing !== 0 || align === JUSTIFY || !this._isEmptyStyles(n)) {
         //   var words = text.split(' ');
         spacesNumber = text.split(' ').length - 1;
         var array = stringToArray(text);
+
+        var strokeEnabled = this.hasStroke();
         for (var li = 0; li < array.length; li++) {
           var letter = array[li];
           // skip justify for the last line
           if (letter === ' ' && !lastLine && align === JUSTIFY) {
             lineTranslateX += (totalWidth - padding * 2 - width) / spacesNumber;
-            // context.translate(
-            //   Math.floor((totalWidth - padding * 2 - width) / spacesNumber),
-            //   0
-            // );
           }
+          var charSize = this._measureCharSize(letter, n, li);
+          context.save();
+          context.setAttr('font', this._getContextFont2(n, li));
+
+          var deltaY = this._getValueOfPropertyAt(n, li, "deltaY", false) || 0;
+
           this._partialTextX = lineTranslateX;
-          this._partialTextY = translateY + lineTranslateY;
+          this._partialTextY = translateY + lineTranslateY + deltaY;
           this._partialText = letter;
-          context.fillStrokeShape(this);
-          lineTranslateX += this.measureSize(letter).width + letterSpacing;
+
+          this._fillStrokeChar(n, li, context, strokeEnabled);
+          //context.fillStrokeShape(this);
+          context.restore();
+
+          lineTranslateX += charSize.width + letterSpacing;
         }
       } else {
         this._partialTextX = lineTranslateX;
@@ -304,10 +314,13 @@ export class Text extends Shape<TextConfig> {
 
         context.fillStrokeShape(this);
       }
+
       context.restore();
+
       if (textArrLen > 1) {
         translateY += lineHeightPx;
       }
+
     }
   }
   _hitFunc(context) {
@@ -323,8 +336,8 @@ export class Text extends Shape<TextConfig> {
     var str = Util._isString(text)
       ? text
       : text === null || text === undefined
-      ? ''
-      : text + '';
+        ? ''
+        : text + '';
     this._setAttr(TEXT, str);
     return this;
   }
@@ -336,7 +349,7 @@ export class Text extends Shape<TextConfig> {
     var isAuto = this.attrs.height === AUTO || this.attrs.height === undefined;
     return isAuto
       ? this.fontSize() * this.textArr.length * this.lineHeight() +
-          this.padding() * 2
+      this.padding() * 2
       : this.attrs.height;
   }
   /**
@@ -425,11 +438,13 @@ export class Text extends Shape<TextConfig> {
       // align = this.align(),
       shouldWrap = wrap !== NONE,
       wrapAtWord = wrap !== CHAR && shouldWrap,
-      shouldAddEllipsis = this.ellipsis();
+      shouldAddEllipsis = this.ellipsis(),
+      styles = this.styles();
 
     this.textArr = [];
     getDummyContext().font = this._getContextFont();
     var additionalWidth = shouldAddEllipsis ? this._getTextWidth(ELLIPSIS) : 0;
+
     for (var i = 0, max = lines.length; i < max; ++i) {
       var line = lines[i];
 
@@ -538,6 +553,7 @@ export class Text extends Shape<TextConfig> {
         this.textArr[this.textArr.length - 1].lastInParagraph = true;
       }
     }
+
     this.textHeight = fontSize;
     // var maxTextWidth = 0;
     // for(var j = 0; j < this.textArr.length; j++) {
@@ -598,6 +614,102 @@ export class Text extends Shape<TextConfig> {
     return true;
   }
 
+
+
+
+
+
+  _isEmptyStyles(lineIndex) {
+    var styles = this.styles();
+    if (!styles) {
+      return true;
+    }
+    if (typeof lineIndex !== 'undefined' && !styles[lineIndex]) {
+      return true;
+    }
+    var obj = typeof lineIndex === 'undefined' ? styles : { line: styles[lineIndex] };
+
+    for (var p1 in obj) {
+      for (var p2 in obj[p1]) {
+        // eslint-disable-next-line no-unused-vars
+        for (var p3 in obj[p1][p2]) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+  _getStyleDeclaration(lineIndex: number, charIndex: number) {
+    var styles = this.styles();
+    var lineStyle = styles && styles[lineIndex];
+    if (!lineStyle) {
+      return null;
+    }
+
+    return lineStyle[charIndex];
+  }
+  _getValueOfPropertyAt(lineIndex: number, charIndex: number, property: string, def?: boolean) {
+    var charStyle = this._getStyleDeclaration(lineIndex, charIndex);
+    if (charStyle && typeof charStyle[property] !== 'undefined') {
+      return charStyle[property];
+    }
+    if (def != false)
+      return this.getAttr(property);
+    else
+      return null;
+  }
+  _measureCharSize(char: string, lineIndex: number, charIndex: number,) {
+    var _context = getDummyContext(),
+      fontSize = this._getValueOfPropertyAt(lineIndex, charIndex, 'fontSize'),
+      metrics;
+
+    _context.save();
+    _context.font = this._getContextFont2(lineIndex, charIndex);
+    metrics = _context.measureText(char);
+    _context.restore();
+    return {
+      width: metrics.width,
+      height: fontSize,
+    };
+  }
+  _getContextFont2(lineIndex: number, charIndex: number) {
+    return (
+      this._getValueOfPropertyAt(lineIndex, charIndex, "fontStyle") +
+      SPACE +
+      this._getValueOfPropertyAt(lineIndex, charIndex, "fontVariant") +
+      SPACE +
+      (this._getValueOfPropertyAt(lineIndex, charIndex, "fontSize") + PX_SPACE) +
+      // wrap font family into " so font families with spaces works ok
+      normalizeFontFamily(this._getValueOfPropertyAt(lineIndex, charIndex, "fontFamily"))
+    );
+  }
+  _fillStrokeChar(lineIndex: number, charIndex: number, context, strokeEnabled) {
+
+    var strokeStyle = this._getValueOfPropertyAt(lineIndex, charIndex, "stroke");
+    context.setAttr("strokeStyle", strokeStyle);
+
+    var fillStyle = this._getValueOfPropertyAt(lineIndex, charIndex, "fill");
+    context.setAttr("fillStyle", fillStyle);
+
+    if (this.attrs.fillAfterStrokeEnabled) {
+      if (strokeEnabled) 
+        this._strokeFunc(context);
+      
+      if (this.fillEnabled()) 
+        this._fillFunc(context);
+      
+    } else {
+      if (this.fillEnabled()) 
+        this._fillFunc(context);
+      
+      if (strokeEnabled) 
+        this._strokeFunc(context);
+      
+    }
+  }
+
+
+
   fontFamily: GetSet<string, this>;
   fontSize: GetSet<number, this>;
   fontStyle: GetSet<string, this>;
@@ -611,6 +723,7 @@ export class Text extends Shape<TextConfig> {
   text: GetSet<string, this>;
   wrap: GetSet<string, this>;
   ellipsis: GetSet<boolean, this>;
+  styles!: GetSet<object, this>;
 }
 
 Text.prototype._fillFunc = _fillFunc;
@@ -876,3 +989,29 @@ Factory.addGetterSetter(Text, 'text', '', getStringValidator());
  */
 
 Factory.addGetterSetter(Text, 'textDecoration', '');
+
+
+/**
+ * get/set styles
+ * @name Konva.Text#styles
+ * @method
+ * @param {String} textStyles
+ * @returns {String}
+ * @example
+ * // set styles
+ * text.styles({
+  * 0:{
+  *  0:{ start: 0, fontFamily: 'Roboto',fontSize:10 }
+  * }
+ * });
+ */
+/*  fontFamily: string
+ fontSize: number
+ fontStyle: 'normal' | 'italic' | 'bold' | 'italic bold' | 'bold italic'
+ fontVariant: 'normal' | 'small-caps'
+ textDecoration: '' | 'underline' | 'line-through' | 'underline line-through'
+ fill: string
+ stroke: string
+ deltaY: number */
+
+Factory.addGetterSetter(Text, 'styles', null);
