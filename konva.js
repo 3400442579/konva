@@ -8,7 +8,7 @@
    * Konva JavaScript Framework v8.3.13
    * http://konvajs.org/
    * Licensed under the MIT
-   * Date: Mon Oct 24 2022
+   * Date: Tue Oct 25 2022
    *
    * Original work Copyright (C) 2011 - 2013 by Eric Rowell (KineticJS)
    * Modified work Copyright (C) 2014 - present by Anton Lavrenov (Konva)
@@ -6600,13 +6600,13 @@
   var patternImage = 'patternImage';
   var linearGradient = 'linearGradient';
   var radialGradient = 'radialGradient';
-  let dummyContext$2;
-  function getDummyContext$2() {
-      if (dummyContext$2) {
-          return dummyContext$2;
+  let dummyContext$1;
+  function getDummyContext$1() {
+      if (dummyContext$1) {
+          return dummyContext$1;
       }
-      dummyContext$2 = Util.createCanvasElement().getContext('2d');
-      return dummyContext$2;
+      dummyContext$1 = Util.createCanvasElement().getContext('2d');
+      return dummyContext$1;
   }
   const shapes = {};
   // TODO: idea - use only "remove" (or destroy method)
@@ -6789,7 +6789,7 @@
       }
       __getFillPattern() {
           if (this.fillPatternImage()) {
-              var ctx = getDummyContext$2();
+              var ctx = getDummyContext$1();
               const pattern = ctx.createPattern(this.fillPatternImage(), this.fillPatternRepeat() || 'repeat');
               if (pattern && pattern.setTransform) {
                   const tr = new Transform();
@@ -6819,7 +6819,7 @@
       __getLinearGradient() {
           var colorStops = this.fillLinearGradientColorStops();
           if (colorStops) {
-              var ctx = getDummyContext$2();
+              var ctx = getDummyContext$1();
               var start = this.fillLinearGradientStartPoint();
               var end = this.fillLinearGradientEndPoint();
               var grd = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
@@ -6836,7 +6836,7 @@
       __getRadialGradient() {
           var colorStops = this.fillRadialGradientColorStops();
           if (colorStops) {
-              var ctx = getDummyContext$2();
+              var ctx = getDummyContext$1();
               var start = this.fillRadialGradientStartPoint();
               var end = this.fillRadialGradientEndPoint();
               var grd = ctx.createRadialGradient(start.x, start.y, this.fillRadialGradientStartRadius(), end.x, end.y, this.fillRadialGradientEndRadius());
@@ -13253,7 +13253,7 @@
   ], 
   // cached variables
   attrChangeListLen = ATTR_CHANGE_LIST$1.length;
-  function normalizeFontFamily$1(fontFamily) {
+  function normalizeFontFamily(fontFamily) {
       return fontFamily
           .split(',')
           .map((family) => {
@@ -13267,13 +13267,13 @@
       })
           .join(', ');
   }
-  var dummyContext$1;
-  function getDummyContext$1() {
-      if (dummyContext$1) {
-          return dummyContext$1;
+  var dummyContext;
+  function getDummyContext() {
+      if (dummyContext) {
+          return dummyContext;
       }
-      dummyContext$1 = Util.createCanvasElement().getContext(CONTEXT_2D);
-      return dummyContext$1;
+      dummyContext = Util.createCanvasElement().getContext(CONTEXT_2D);
+      return dummyContext;
   }
   function _fillFunc$1(context) {
       context.fillText(this._partialText, this._partialTextX, this._partialTextY);
@@ -13425,6 +13425,7 @@
               alignY = this.getHeight() - textArrLen * lineHeightPx - padding * 2;
           }
           context.translate(padding, alignY + padding);
+          var charIndex = 0;
           // draw text lines
           for (n = 0; n < textArrLen; n++) {
               var lineTranslateX = 0;
@@ -13472,7 +13473,7 @@
                   context.stroke();
                   context.restore();
               }
-              if (letterSpacing !== 0 || align === JUSTIFY || !this._isEmptyStyles(n)) {
+              if (letterSpacing !== 0 || align === JUSTIFY || this.styles()) {
                   //   var words = text.split(' ');
                   spacesNumber = text.split(' ').length - 1;
                   var array = stringToArray(text);
@@ -13483,16 +13484,20 @@
                       if (letter === ' ' && !lastLine && align === JUSTIFY) {
                           lineTranslateX += (totalWidth - padding * 2 - width) / spacesNumber;
                       }
-                      var charSize = this._measureCharSize(letter, n, li);
+                      var charSize = this._measureCharSize(letter, charIndex);
                       context.save();
-                      context.setAttr('font', this._getContextFont2(n, li));
-                      var deltaY = this._getValueOfPropertyAt(n, li, "deltaY", false) || 0;
+                      context.setAttr('font', this._getContextFont2(charIndex));
+                      var filter = this._getValueOfPropertyAt(charIndex, "filter", false);
+                      if (filter)
+                          context.setAttr("filter", filter);
+                      var deltaY = this._getValueOfPropertyAt(charIndex, "deltaY", false) || 0;
                       this._partialTextX = lineTranslateX;
                       this._partialTextY = translateY + lineTranslateY + deltaY;
                       this._partialText = letter;
-                      this._fillStrokeChar(n, li, context, strokeEnabled);
+                      this._fillStrokeChar(charIndex, context, strokeEnabled);
                       //context.fillStrokeShape(this);
                       context.restore();
+                      charIndex += 1;
                       lineTranslateX += charSize.width + letterSpacing;
                   }
               }
@@ -13557,7 +13562,7 @@
        * @returns {Object} { width , height} of measured text
        */
       measureSize(text) {
-          var _context = getDummyContext$1(), fontSize = this.fontSize(), metrics;
+          var _context = getDummyContext(), fontSize = this.fontSize(), metrics;
           _context.save();
           _context.font = this._getContextFont();
           metrics = _context.measureText(text);
@@ -13574,7 +13579,7 @@
               SPACE +
               (this.fontSize() + PX_SPACE) +
               // wrap font family into " so font families with spaces works ok
-              normalizeFontFamily$1(this.fontFamily()));
+              normalizeFontFamily(this.fontFamily()));
       }
       _addTextLine(line) {
           if (this.align() === JUSTIFY) {
@@ -13590,7 +13595,7 @@
       _getTextWidth(text) {
           var letterSpacing = this.letterSpacing();
           var length = text.length;
-          return (getDummyContext$1().measureText(text).width +
+          return (getDummyContext().measureText(text).width +
               (length ? letterSpacing * (length - 1) : 0));
       }
       _setTextData() {
@@ -13598,7 +13603,7 @@
           // align = this.align(),
           shouldWrap = wrap !== NONE, wrapAtWord = wrap !== CHAR && shouldWrap, shouldAddEllipsis = this.ellipsis(); this.styles();
           this.textArr = [];
-          getDummyContext$1().font = this._getContextFont();
+          getDummyContext().font = this._getContextFont();
           var additionalWidth = shouldAddEllipsis ? this._getTextWidth(ELLIPSIS) : 0;
           for (var i = 0, max = lines.length; i < max; ++i) {
               var line = lines[i];
@@ -13762,16 +13767,16 @@
           }
           return true;
       }
-      _getStyleDeclaration(lineIndex, charIndex) {
+      _getStyleDeclaration(charIndex) {
           var styles = this.styles();
-          var lineStyle = styles && styles[lineIndex];
+          var lineStyle = styles && styles[charIndex];
           if (!lineStyle) {
               return null;
           }
-          return lineStyle[charIndex];
+          return lineStyle;
       }
-      _getValueOfPropertyAt(lineIndex, charIndex, property, def) {
-          var charStyle = this._getStyleDeclaration(lineIndex, charIndex);
+      _getValueOfPropertyAt(charIndex, property, def) {
+          var charStyle = this._getStyleDeclaration(charIndex);
           if (charStyle && typeof charStyle[property] !== 'undefined') {
               return charStyle[property];
           }
@@ -13780,10 +13785,10 @@
           else
               return null;
       }
-      _measureCharSize(char, lineIndex, charIndex) {
-          var _context = getDummyContext$1(), fontSize = this._getValueOfPropertyAt(lineIndex, charIndex, 'fontSize'), metrics;
+      _measureCharSize(char, charIndex) {
+          var _context = getDummyContext(), fontSize = this._getValueOfPropertyAt(charIndex, 'fontSize'), metrics;
           _context.save();
-          _context.font = this._getContextFont2(lineIndex, charIndex);
+          _context.font = this._getContextFont2(charIndex);
           metrics = _context.measureText(char);
           _context.restore();
           return {
@@ -13791,19 +13796,19 @@
               height: fontSize,
           };
       }
-      _getContextFont2(lineIndex, charIndex) {
-          return (this._getValueOfPropertyAt(lineIndex, charIndex, "fontStyle") +
+      _getContextFont2(charIndex) {
+          return (this._getValueOfPropertyAt(charIndex, "fontStyle") +
               SPACE +
-              this._getValueOfPropertyAt(lineIndex, charIndex, "fontVariant") +
+              this._getValueOfPropertyAt(charIndex, "fontVariant") +
               SPACE +
-              (this._getValueOfPropertyAt(lineIndex, charIndex, "fontSize") + PX_SPACE) +
+              (this._getValueOfPropertyAt(charIndex, "fontSize") + PX_SPACE) +
               // wrap font family into " so font families with spaces works ok
-              normalizeFontFamily$1(this._getValueOfPropertyAt(lineIndex, charIndex, "fontFamily")));
+              normalizeFontFamily(this._getValueOfPropertyAt(charIndex, "fontFamily")));
       }
-      _fillStrokeChar(lineIndex, charIndex, context, strokeEnabled) {
-          var strokeStyle = this._getValueOfPropertyAt(lineIndex, charIndex, "stroke");
+      _fillStrokeChar(charIndex, context, strokeEnabled) {
+          var strokeStyle = this._getValueOfPropertyAt(charIndex, "stroke");
           context.setAttr("strokeStyle", strokeStyle);
-          var fillStyle = this._getValueOfPropertyAt(lineIndex, charIndex, "fill");
+          var fillStyle = this._getValueOfPropertyAt(charIndex, "fill");
           context.setAttr("fillStyle", fillStyle);
           if (this.attrs.fillAfterStrokeEnabled) {
               if (strokeEnabled)
@@ -16759,557 +16764,6 @@
       setAngleDeg: 'setAngle',
   });
 
-  let dummyContext;
-  function getDummyContext() {
-      if (dummyContext) {
-          return dummyContext;
-      }
-      dummyContext = Util.createCanvasElement().getContext('2d');
-      return dummyContext;
-  }
-  function normalizeFontFamily(fontFamily) {
-      return fontFamily
-          .split(',')
-          .map((family) => {
-          family = family.trim();
-          const hasSpace = family.indexOf(' ') >= 0;
-          const hasQuotes = family.indexOf('"') >= 0 || family.indexOf("'") >= 0;
-          if (hasSpace && !hasQuotes) {
-              family = `"${family}"`;
-          }
-          return family;
-      })
-          .join(', ');
-  }
-  class MultiStyledText extends Shape {
-      constructor(config) {
-          super(config);
-          this.className = 'MultiStyledText';
-          this.textLines = [];
-          /**
-           * @description This method is called by context.fillStrokeShape(this)
-           * to fill the shape
-           */
-          this._fillFunc = (context) => {
-              context.fillText(this.drawState.text, this.drawState.x, this.drawState.y);
-          };
-          /**
-           * @description This method is called by context.fillStrokeShape(this)
-           * to stroke the shape
-           */
-          this._strokeFunc = (context) => {
-              context.strokeText(this.drawState.text, this.drawState.x, this.drawState.y, undefined);
-          };
-          // update text data for certain attr changes
-          for (const attr of [
-              'padding', 'wrap', 'lineHeight', 'letterSpacing', 'textStyles', 'width', 'height', 'text'
-          ]) {
-              this.on(`${attr}Change.konva`, this.computeTextParts);
-          }
-          this.computeTextParts();
-      }
-      formatFont(part) {
-          return `${part.style.fontStyle} ${part.style.fontVariant} ${part.style.fontSize}px ${normalizeFontFamily(part.style.fontFamily)}`;
-      }
-      measurePart(part) {
-          const context = getDummyContext();
-          context.save();
-          context.font = this.formatFont(part);
-          const width = context.measureText(part.text).width;
-          context.restore();
-          return width;
-      }
-      computeTextParts() {
-          this.textLines = [];
-          const lines = this.text().split('\n');
-          const maxWidth = this.attrs.width;
-          const maxHeight = this.attrs.height;
-          const hasFixedWidth = maxWidth !== 'auto' && maxWidth !== undefined;
-          const hasFixedHeight = maxHeight !== 'auto' && maxHeight !== undefined;
-          const shouldWrap = this.wrap() !== 'none';
-          const wrapAtWord = this.wrap() !== 'char' && shouldWrap;
-          const shouldAddEllipsis = this.ellipsis();
-          const styles = this.textStyles();
-          const ellipsis = '…';
-          const additionalWidth = shouldAddEllipsis ? this.measurePart({ text: ellipsis, style: styles[styles.length - 1] }) : 0;
-          const stylesByChar = Array.from(this.text()).map((char, index) => {
-              return {
-                  char,
-                  style: styles.find((style) => index >= style.start && (typeof style.end === 'undefined' || style.end >= index))
-              };
-          });
-          const findParts = (start, end) => {
-              // find matching characters
-              const chars = stylesByChar.slice(start, end);
-              // group them by style
-              const parts = [];
-              for (const char of chars) {
-                  const similarGroupIndex = parts.findIndex((part) => part.style === char.style);
-                  if (similarGroupIndex === -1) {
-                      parts.push({ text: char.char, width: 0, style: char.style });
-                      continue;
-                  }
-                  parts[similarGroupIndex].text += char.char;
-              }
-              return parts;
-          };
-          const measureSubstring = (start, end) => {
-              return measureParts(findParts(start, end));
-          };
-          const measureParts = (parts) => {
-              return parts.reduce((size, part) => {
-                  part.width = this.measurePart(part);
-                  return size + part.width;
-              }, 0);
-          };
-          const measureHeightParts = (parts) => {
-              return Math.max(...parts.map((part) => {
-                  return part.style.fontSize * this.lineHeight();
-              }));
-          };
-          const addLine = (width, height, parts) => {
-              // if element height is fixed, abort if adding one more line would overflow
-              // so we don't add this line, the loop will be broken anyway
-              if (hasFixedHeight && (currentHeight + height) > maxHeight) {
-                  return;
-              }
-              this.textLines.push({
-                  width,
-                  parts: parts.map((part) => {
-                      // compute size if not already computed during part creation
-                      part.width = part.width === 0 ? this.measurePart(part) : part.width;
-                      return part;
-                  }),
-                  totalHeight: height
-              });
-          };
-          let currentHeight = 0;
-          let charCount = 0;
-          for (let line of lines) {
-              let lineWidth = measureSubstring(charCount, charCount + line.length);
-              let lineHeight;
-              if (hasFixedWidth && lineWidth > maxWidth) {
-                  /*
-                   * if width is fixed and line does not fit entirely
-                   * break the line into multiple fitting lines
-                   */
-                  let cursor = 0;
-                  while (line.length > 0) {
-                      /*
-                       * use binary search to find the longest substring that
-                       * that would fit in the specified width
-                       */
-                      var low = 0, high = line.length, match = '', matchWidth = 0;
-                      while (low < high) {
-                          var mid = (low + high) >>> 1, substr = line.slice(0, mid + 1), substrWidth = measureSubstring(charCount + cursor, charCount + cursor + mid + 1) + additionalWidth;
-                          if (substrWidth <= maxWidth) {
-                              low = mid + 1;
-                              match = substr;
-                              matchWidth = substrWidth;
-                          }
-                          else {
-                              high = mid;
-                          }
-                      }
-                      /*
-                        * 'low' is now the index of the substring end
-                        * 'match' is the substring
-                        * 'matchWidth' is the substring width in px
-                        */
-                      if (match) {
-                          // a fitting substring was found
-                          if (wrapAtWord) {
-                              // try to find a space or dash where wrapping could be done
-                              let wrapIndex;
-                              var nextChar = line[match.length];
-                              var nextIsSpaceOrDash = nextChar === ' ' || nextChar === '-';
-                              if (nextIsSpaceOrDash && matchWidth <= maxWidth) {
-                                  wrapIndex = match.length;
-                              }
-                              else {
-                                  wrapIndex = Math.max(match.lastIndexOf(' '), match.lastIndexOf('-')) + 1;
-                              }
-                              if (wrapIndex > 0) {
-                                  // re-cut the substring found at the space/dash position
-                                  low = wrapIndex;
-                                  match = match.slice(0, low);
-                                  matchWidth = measureSubstring(charCount + cursor, charCount + cursor + low);
-                              }
-                          }
-                          // match = match.trimRight()
-                          const parts = findParts(charCount + cursor, charCount + cursor + low);
-                          lineHeight = measureHeightParts(parts);
-                          addLine(measureParts(parts), lineHeight, parts);
-                          currentHeight += lineHeight;
-                          if (!shouldWrap ||
-                              (hasFixedHeight && currentHeight + lineHeight > maxHeight)) {
-                              const lastLine = this.textLines[this.textLines.length - 1];
-                              if (lastLine) {
-                                  if (shouldAddEllipsis) {
-                                      const lastPart = lastLine.parts[lastLine.parts.length - 1];
-                                      const lastPartWidthWithEllipsis = this.measurePart(Object.assign(Object.assign({}, lastPart), { text: `${lastPart.text}${ellipsis}` }));
-                                      const haveSpace = lastPartWidthWithEllipsis < maxWidth;
-                                      if (!haveSpace) {
-                                          lastPart.text = lastPart.text.slice(0, lastPart.text.length - 3);
-                                      }
-                                      lastLine.parts.splice(lastLine.parts.length - 1, 1);
-                                      lastLine.parts.push(Object.assign(Object.assign({}, lastPart), { width: lastPartWidthWithEllipsis, text: `${lastPart.text}${ellipsis}` }));
-                                  }
-                              }
-                              /*
-                                * stop wrapping if wrapping is disabled or if adding
-                                * one more line would overflow the fixed height
-                                */
-                              break;
-                          }
-                          line = line.slice(low);
-                          cursor += low;
-                          // line = line.trimLeft()
-                          if (line.length > 0) {
-                              // Check if the remaining text would fit on one line
-                              const parts = findParts(charCount + cursor, charCount + cursor + line.length);
-                              lineWidth = measureParts(parts);
-                              if (lineWidth <= maxWidth) {
-                                  // if it does, add the line and break out of the loop
-                                  const height = measureHeightParts(parts);
-                                  addLine(lineWidth, height, parts);
-                                  currentHeight += height;
-                                  break;
-                              }
-                          }
-                      }
-                      else {
-                          // not even one character could fit in the element, abort
-                          break;
-                      }
-                  }
-              }
-              else {
-                  const parts = findParts(charCount, charCount + line.length);
-                  lineHeight = measureHeightParts(parts);
-                  addLine(lineWidth, lineHeight, parts);
-              }
-              // if element height is fixed, abort if adding one more line would overflow
-              // so we stop here to avoid processing useless lines
-              if (hasFixedHeight && (currentHeight + lineHeight) > maxHeight) {
-                  break;
-              }
-              charCount += line.length;
-              currentHeight += lineHeight;
-          }
-          this.linesHeight = this.textLines.reduce((size, line) => size + line.totalHeight, 0);
-          this.linesWidth = Math.max(...this.textLines.map((line) => line.width, 0));
-      }
-      getHeight() {
-          const isAuto = this.attrs.height === 'auto' || this.attrs.height === undefined;
-          if (!isAuto) {
-              return this.attrs.height;
-          }
-          return this.linesHeight + this.padding() * 2;
-      }
-      getWidth() {
-          const isAuto = this.attrs.width === 'auto' || this.attrs.width === undefined;
-          if (!isAuto) {
-              return this.attrs.width;
-          }
-          return this.linesWidth + this.padding() * 2;
-      }
-      /**
-       * @description This method is called when the shape should render
-       * on canvas
-       */
-      _sceneFunc(context) {
-          if (this.text().length === 0) {
-              return;
-          }
-          const totalWidth = this.getWidth();
-          const totalHeight = this.getHeight();
-          context.setAttr('textBaseline', 'middle');
-          context.setAttr('textAlign', 'left');
-          // handle vertical alignment
-          const padding = this.padding();
-          let alignY = 0;
-          if (this.verticalAlign() === 'middle') {
-              alignY = (totalHeight - this.linesHeight - padding * 2) / 2;
-          }
-          else if (this.verticalAlign() === 'bottom') {
-              alignY = totalHeight - this.linesHeight - padding * 2;
-          }
-          context.translate(padding, alignY + padding);
-          let y = this.textLines[0].totalHeight / 2;
-          let lineIndex = 0;
-          for (const line of this.textLines) {
-              const isLastLine = lineIndex === this.textLines.length - 1;
-              let lineX = 0;
-              let lineY = 0;
-              context.save();
-              // horizontal alignment
-              if (this.align() === 'right') {
-                  lineX += totalWidth - line.width - padding * 2;
-              }
-              else if (this.align() === 'center') {
-                  lineY += (totalWidth - line.width - padding * 2) / 2;
-              }
-              for (const part of line.parts) {
-                  // style
-                  if (part.style.textDecoration.includes('underline')) {
-                      context.save();
-                      context.beginPath();
-                      context.moveTo(lineX, y + lineY + Math.round(part.style.fontSize / 2));
-                      const spacesNumber = part.text.split(' ').length - 1;
-                      const oneWord = spacesNumber === 0;
-                      const lineWidth = this.align() === 'justify' && isLastLine && !oneWord
-                          ? totalWidth - padding * 2
-                          : part.width;
-                      context.lineTo(lineX + Math.round(lineWidth), y + lineY + Math.round(part.style.fontSize / 2));
-                      // I have no idea what is real ratio
-                      // just /15 looks good enough
-                      context.lineWidth = part.style.fontSize / 15;
-                      context.strokeStyle = part.style.fill;
-                      context.stroke();
-                      context.restore();
-                  }
-                  if (part.style.textDecoration.includes('line-through')) {
-                      context.save();
-                      context.beginPath();
-                      context.moveTo(lineX, y + lineY);
-                      const spacesNumber = part.text.split(' ').length - 1;
-                      const oneWord = spacesNumber === 0;
-                      const lineWidth = this.align() === 'justify' && isLastLine && !oneWord
-                          ? totalWidth - padding * 2
-                          : part.width;
-                      context.lineTo(lineX + Math.round(lineWidth), y + lineY);
-                      context.lineWidth = part.style.fontSize / 15;
-                      context.strokeStyle = part.style.fill;
-                      context.stroke();
-                      context.restore();
-                  }
-                  this.fill(part.style.fill);
-                  this.stroke(part.style.stroke);
-                  context.setAttr('font', this.formatFont(part));
-                  // text
-                  if (this.letterSpacing() !== 0 || this.align() === 'justify') {
-                      const spacesNumber = part.text.split(' ').length - 1;
-                      var array = Array.from(part.text);
-                      for (let li = 0; li < array.length; li++) {
-                          const letter = array[li];
-                          // skip justify for the last line
-                          if (letter === ' ' && lineIndex !== this.textLines.length - 1 && this.align() === 'justify') {
-                              lineX += (totalWidth - padding * 2 - line.width) / spacesNumber;
-                          }
-                          this.drawState = {
-                              x: lineX,
-                              y: y + lineY,
-                              text: letter
-                          };
-                          context.fillStrokeShape(this);
-                          lineX += this.measurePart(Object.assign(Object.assign({}, part), { text: letter })) + this.letterSpacing();
-                      }
-                  }
-                  else {
-                      this.drawState = {
-                          x: lineX,
-                          y: y + lineY,
-                          text: part.text
-                      };
-                      context.fillStrokeShape(this);
-                      lineX += part.width + this.letterSpacing();
-                  }
-              }
-              context.restore();
-              if (typeof this.textLines[lineIndex + 1] !== 'undefined') {
-                  y += this.textLines[lineIndex + 1].totalHeight;
-              }
-              ++lineIndex;
-          }
-      }
-      /**
-       * @description This method should render on canvas a rect with
-       * the width and the height of the text shape
-       */
-      _hitFunc(context) {
-          context.beginPath();
-          context.rect(0, 0, this.getWidth(), this.getHeight());
-          context.closePath();
-          context.fillStrokeShape(this);
-      }
-      // for text we can't disable stroke scaling
-      // if we do, the result will be unexpected
-      getStrokeScaleEnabled() {
-          return true;
-      }
-  }
-  _registerNode(MultiStyledText);
-  /**
-   * get/set width of text area, which includes padding.
-   * @name Konva.Text#width
-   * @method
-   * @param {Number} width
-   * @returns {Number}
-   * @example
-   * // get width
-   * var width = text.width();
-   *
-   * // set width
-   * text.width(20);
-   *
-   * // set to auto
-   * text.width('auto');
-   * text.width() // will return calculated width, and not "auto"
-   */
-  Factory.overWriteSetter(MultiStyledText, 'width', getNumberOrAutoValidator());
-  /**
-   * get/set the height of the text area, which takes into account multi-line text, line heights, and padding.
-   * @name Konva.Text#height
-   * @method
-   * @param {Number} height
-   * @returns {Number}
-   * @example
-   * // get height
-   * var height = text.height();
-   *
-   * // set height
-   * text.height(20);
-   *
-   * // set to auto
-   * text.height('auto');
-   * text.height() // will return calculated height, and not "auto"
-   */
-  Factory.overWriteSetter(MultiStyledText, 'height', getNumberOrAutoValidator());
-  /**
-   * get/set padding
-   * @name Konva.Text#padding
-   * @method
-   * @param {Number} padding
-   * @returns {Number}
-   * @example
-   * // get padding
-   * var padding = text.padding();
-   *
-   * // set padding to 10 pixels
-   * text.padding(10);
-   */
-  Factory.addGetterSetter(MultiStyledText, 'padding', 0, getNumberValidator());
-  /**
-   * get/set horizontal align of text.  Can be 'left', 'center', 'right' or 'justify'
-   * @name Konva.Text#align
-   * @method
-   * @param {String} align
-   * @returns {String}
-   * @example
-   * // get text align
-   * var align = text.align();
-   *
-   * // center text
-   * text.align('center');
-   *
-   * // align text to right
-   * text.align('right');
-   */
-  Factory.addGetterSetter(MultiStyledText, 'align', 'left');
-  /**
-   * get/set vertical align of text.  Can be 'top', 'middle', 'bottom'.
-   * @name Konva.Text#verticalAlign
-   * @method
-   * @param {String} verticalAlign
-   * @returns {String}
-   * @example
-   * // get text vertical align
-   * var verticalAlign = text.verticalAlign();
-   *
-   * // center text
-   * text.verticalAlign('middle');
-   */
-  Factory.addGetterSetter(MultiStyledText, 'verticalAlign', 'top');
-  /**
-   * get/set line height.  The default is 1.
-   * @name Konva.Text#lineHeight
-   * @method
-   * @param {Number} lineHeight
-   * @returns {Number}
-   * @example
-   * // get line height
-   * var lineHeight = text.lineHeight();
-   *
-   * // set the line height
-   * text.lineHeight(2);
-   */
-  Factory.addGetterSetter(MultiStyledText, 'lineHeight', 1, getNumberValidator());
-  /**
-   * get/set wrap.  Can be "word", "char", or "none". Default is "word".
-   * In "word" wrapping any word still can be wrapped if it can't be placed in the required width
-   * without breaks.
-   * @name Konva.Text#wrap
-   * @method
-   * @param {String} wrap
-   * @returns {String}
-   * @example
-   * // get wrap
-   * var wrap = text.wrap();
-   *
-   * // set wrap
-   * text.wrap('word');
-   */
-  Factory.addGetterSetter(MultiStyledText, 'wrap', 'word');
-  /**
-   * get/set ellipsis. Can be true or false. Default is false. If ellipses is true,
-   * Konva will add "..." at the end of the text if it doesn't have enough space to write characters.
-   * That is possible only when you limit both width and height of the text
-   * @name Konva.Text#ellipsis
-   * @method
-   * @param {Boolean} ellipsis
-   * @returns {Boolean}
-   * @example
-   * // get ellipsis param, returns true or false
-   * var ellipsis = text.ellipsis();
-   *
-   * // set ellipsis
-   * text.ellipsis(true);
-   */
-  Factory.addGetterSetter(MultiStyledText, 'ellipsis', false, getBooleanValidator());
-  /**
-   * set letter spacing property. Default value is 0.
-   * @name Konva.Text#letterSpacing
-   * @method
-   * @param {Number} letterSpacing
-   */
-  Factory.addGetterSetter(MultiStyledText, 'letterSpacing', 0, getNumberValidator());
-  /**
-   * get/set text
-   * @name Konva.Text#text
-   * @method
-   * @param {String} text
-   * @returns {String}
-   * @example
-   * // get text
-   * var text = text.text();
-   *
-   * // set text
-   * text.text('Hello world!');
-   */
-  Factory.addGetterSetter(MultiStyledText, 'text', '', getStringValidator());
-  /**
-   * get/set textStyles
-   * @name Konva.Text#textStyles
-   * @method
-   * @param {TextStyle[]} textStyles
-   * @returns {String}
-   * @example
-   * // set styles
-   * text.textStyles([{ start: 0, fontFamily: 'Roboto' }]);
-   */
-  const defaultStyle = {
-      start: 0,
-      fill: 'black',
-      stroke: 'black',
-      fontFamily: 'Arial',
-      fontSize: 12,
-      fontStyle: 'normal',
-      fontVariant: 'normal',
-      textDecoration: ''
-  };
-  Factory.addGetterSetter(MultiStyledText, 'textStyles', [defaultStyle]);
-
   /*
    the Gauss filter
    master repo: https://github.com/pavelpower/kineticjsGaussFilter
@@ -19379,7 +18833,6 @@
       TextPath,
       Transformer,
       Wedge,
-      MultiStyledText,
       /**
        * @namespace Filters
        * @memberof Konva

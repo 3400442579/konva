@@ -2,125 +2,125 @@ import { Util } from '../Util';
 import { Factory } from '../Factory';
 import { Shape, ShapeConfig } from '../Shape';
 import {
-  getNumberValidator,
-  getStringValidator,
-  getNumberOrAutoValidator,
-  getBooleanValidator,
+    getNumberValidator,
+    getStringValidator,
+    getNumberOrAutoValidator,
+    getBooleanValidator,
 } from '../Validators';
 import { _registerNode } from '../Global';
 
 import { GetSet } from '../types';
 
 export function stringToArray(string: string) {
-  // we need to use `Array.from` because it can split unicode string correctly
-  // we also can use some regexp magic from lodash:
-  // https://github.com/lodash/lodash/blob/fb1f99d9d90ad177560d771bc5953a435b2dc119/lodash.toarray/index.js#L256
-  // but I decided it is too much code for that small fix
-  return Array.from(string);
+    // we need to use `Array.from` because it can split unicode string correctly
+    // we also can use some regexp magic from lodash:
+    // https://github.com/lodash/lodash/blob/fb1f99d9d90ad177560d771bc5953a435b2dc119/lodash.toarray/index.js#L256
+    // but I decided it is too much code for that small fix
+    return Array.from(string);
 }
 
 export interface TextConfig extends ShapeConfig {
-  text?: string;
-  fontFamily?: string;
-  fontSize?: number;
-  fontStyle?: string;
-  fontVariant?: string;
-  textDecoration?: string;
-  align?: string;
-  verticalAlign?: string;
-  padding?: number;
-  lineHeight?: number;
-  letterSpacing?: number;
-  wrap?: string;
-  ellipsis?: boolean;
-  styles?: object;
+    text?: string;
+    fontFamily?: string;
+    fontSize?: number;
+    fontStyle?: string;
+    fontVariant?: string;
+    textDecoration?: string;
+    align?: string;
+    verticalAlign?: string;
+    padding?: number;
+    lineHeight?: number;
+    letterSpacing?: number;
+    wrap?: string;
+    ellipsis?: boolean;
+    styles?: object;
 }
 
 // constants
 var AUTO = 'auto',
-  //CANVAS = 'canvas',
-  CENTER = 'center',
-  JUSTIFY = 'justify',
-  CHANGE_KONVA = 'Change.konva',
-  CONTEXT_2D = '2d',
-  DASH = '-',
-  LEFT = 'left',
-  TEXT = 'text',
-  TEXT_UPPER = 'MsText',
-  TOP = 'top',
-  BOTTOM = 'bottom',
-  MIDDLE = 'middle',
-  NORMAL = 'normal',
-  PX_SPACE = 'px ',
-  SPACE = ' ',
-  RIGHT = 'right',
-  WORD = 'word',
-  CHAR = 'char',
-  NONE = 'none',
-  ELLIPSIS = '…',
-  ATTR_CHANGE_LIST = [
-    'fontFamily',
-    'fontSize',
-    'fontStyle',
-    'fontVariant',
-    'padding',
-    'align',
-    'verticalAlign',
-    'lineHeight',
-    'text',
-    'width',
-    'height',
-    'wrap',
-    'ellipsis',
-    'letterSpacing',
-    'styles',
-  ],
-  // cached variables
-  attrChangeListLen = ATTR_CHANGE_LIST.length;
+    //CANVAS = 'canvas',
+    CENTER = 'center',
+    JUSTIFY = 'justify',
+    CHANGE_KONVA = 'Change.konva',
+    CONTEXT_2D = '2d',
+    DASH = '-',
+    LEFT = 'left',
+    TEXT = 'text',
+    TEXT_UPPER = 'MsText',
+    TOP = 'top',
+    BOTTOM = 'bottom',
+    MIDDLE = 'middle',
+    NORMAL = 'normal',
+    PX_SPACE = 'px ',
+    SPACE = ' ',
+    RIGHT = 'right',
+    WORD = 'word',
+    CHAR = 'char',
+    NONE = 'none',
+    ELLIPSIS = '…',
+    ATTR_CHANGE_LIST = [
+        'fontFamily',
+        'fontSize',
+        'fontStyle',
+        'fontVariant',
+        'padding',
+        'align',
+        'verticalAlign',
+        'lineHeight',
+        'text',
+        'width',
+        'height',
+        'wrap',
+        'ellipsis',
+        'letterSpacing',
+        'styles',
+    ],
+    // cached variables
+    attrChangeListLen = ATTR_CHANGE_LIST.length;
 
 function normalizeFontFamily(fontFamily: string) {
-  return fontFamily
-    .split(',')
-    .map((family) => {
-      family = family.trim();
-      const hasSpace = family.indexOf(' ') >= 0;
-      const hasQuotes = family.indexOf('"') >= 0 || family.indexOf("'") >= 0;
-      if (hasSpace && !hasQuotes) {
-        family = `"${family}"`;
-      }
-      return family;
-    })
-    .join(', ');
+    return fontFamily
+        .split(',')
+        .map((family) => {
+            family = family.trim();
+            const hasSpace = family.indexOf(' ') >= 0;
+            const hasQuotes = family.indexOf('"') >= 0 || family.indexOf("'") >= 0;
+            if (hasSpace && !hasQuotes) {
+                family = `"${family}"`;
+            }
+            return family;
+        })
+        .join(', ');
 }
 
 var dummyContext;
 function getDummyContext() {
-  if (dummyContext) {
+    if (dummyContext) {
+        return dummyContext;
+    }
+    dummyContext = Util.createCanvasElement().getContext(CONTEXT_2D);
     return dummyContext;
-  }
-  dummyContext = Util.createCanvasElement().getContext(CONTEXT_2D);
-  return dummyContext;
 }
 
 function _fillFunc(context) {
-  context.fillText(this._partialText, this._partialTextX, this._partialTextY);
+    context.fillText(this._partialText, this._partialTextX, this._partialTextY);
 }
 function _strokeFunc(context) {
-  context.strokeText(this._partialText, this._partialTextX, this._partialTextY);
+    context.strokeText(this._partialText, this._partialTextX, this._partialTextY);
 }
 
 function checkDefaultFill(config) {
-  config = config || {};
+    config = config || {};
 
-  // set default color to black
-  if (
-    !config.fillLinearGradientColorStops &&
-    !config.fillRadialGradientColorStops &&
-    !config.fillPatternImage
-  ) {
-    config.fill = config.fill || 'black';
-  }
-  return config;
+    // set default color to black
+    if (
+        !config.fillLinearGradientColorStops &&
+        !config.fillRadialGradientColorStops &&
+        !config.fillPatternImage
+    ) {
+        config.fill = config.fill || 'black';
+    }
+    return config;
 }
 
 /**
@@ -154,588 +154,592 @@ function checkDefaultFill(config) {
  * });
  */
 export class Text extends Shape<TextConfig> {
-  textArr: Array<{ text: string; width: number; lastInParagraph: boolean }>;
-  _partialText: string;
-  _partialTextX = 0;
-  _partialTextY = 0;
+    textArr: Array<{ text: string; width: number; lastInParagraph: boolean }>;
+    _partialText: string;
+    _partialTextX = 0;
+    _partialTextY = 0;
 
-  textWidth: number;
-  textHeight: number;
-  constructor(config?: TextConfig) {
-    super(checkDefaultFill(config));
-    // update text data for certain attr changes
-    for (var n = 0; n < attrChangeListLen; n++) {
-      this.on(ATTR_CHANGE_LIST[n] + CHANGE_KONVA, this._setTextData);
-    }
-    this._setTextData();
-  }
-
-  _sceneFunc(context) {
-    var textArr = this.textArr,
-      textArrLen = textArr.length;
-
-    if (!this.text()) {
-      return;
-    }
-
-    var padding = this.padding(),
-      fontSize = this.fontSize(),
-      lineHeightPx = this.lineHeight() * fontSize,
-      verticalAlign = this.verticalAlign(),
-      alignY = 0,
-      align = this.align(),
-      totalWidth = this.getWidth(),
-      letterSpacing = this.letterSpacing(),
-      fill = this.fill(),
-      textDecoration = this.textDecoration(),
-      shouldUnderline = textDecoration.indexOf('underline') !== -1,
-      shouldLineThrough = textDecoration.indexOf('line-through') !== -1,
-      n;
-
-    var translateY = 0;
-    var translateY = lineHeightPx / 2;
-
-    var lineTranslateX = 0;
-    var lineTranslateY = 0;
-
-    context.setAttr('font', this._getContextFont());
-
-    context.setAttr('textBaseline', MIDDLE);
-
-    context.setAttr('textAlign', LEFT);
-
-    // handle vertical alignment
-    if (verticalAlign === MIDDLE) {
-      alignY = (this.getHeight() - textArrLen * lineHeightPx - padding * 2) / 2;
-    } else if (verticalAlign === BOTTOM) {
-      alignY = this.getHeight() - textArrLen * lineHeightPx - padding * 2;
-    }
-
-    context.translate(padding, alignY + padding);
-
-    // draw text lines
-    for (n = 0; n < textArrLen; n++) {
-      var lineTranslateX = 0;
-      var lineTranslateY = 0;
-      var obj = textArr[n],
-        text = obj.text,
-        width = obj.width,
-        lastLine = obj.lastInParagraph,
-        spacesNumber,
-        oneWord,
-        lineWidth;
-
-      // horizontal alignment
-      context.save();
-      if (align === RIGHT) {
-        lineTranslateX += totalWidth - width - padding * 2;
-      } else if (align === CENTER) {
-        lineTranslateX += (totalWidth - width - padding * 2) / 2;
-      }
-
-      if (shouldUnderline) {
-        context.save();
-        context.beginPath();
-
-        context.moveTo(
-          lineTranslateX,
-          translateY + lineTranslateY + Math.round(fontSize / 2)
-        );
-        spacesNumber = text.split(' ').length - 1;
-        oneWord = spacesNumber === 0;
-        lineWidth =
-          align === JUSTIFY && lastLine && !oneWord
-            ? totalWidth - padding * 2
-            : width;
-        context.lineTo(
-          lineTranslateX + Math.round(lineWidth),
-          translateY + lineTranslateY + Math.round(fontSize / 2)
-        );
-
-        // I have no idea what is real ratio
-        // just /15 looks good enough
-        context.lineWidth = fontSize / 15;
-        context.strokeStyle = fill;
-        context.stroke();
-        context.restore();
-      }
-      if (shouldLineThrough) {
-        context.save();
-        context.beginPath();
-        context.moveTo(lineTranslateX, translateY + lineTranslateY);
-        spacesNumber = text.split(' ').length - 1;
-        oneWord = spacesNumber === 0;
-        lineWidth =
-          align === JUSTIFY && lastLine && !oneWord
-            ? totalWidth - padding * 2
-            : width;
-        context.lineTo(
-          lineTranslateX + Math.round(lineWidth),
-          translateY + lineTranslateY
-        );
-        context.lineWidth = fontSize / 15;
-        context.strokeStyle = fill;
-        context.stroke();
-        context.restore();
-      }
-
-      if (letterSpacing !== 0 || align === JUSTIFY || !this._isEmptyStyles(n)) {
-        //   var words = text.split(' ');
-        spacesNumber = text.split(' ').length - 1;
-        var array = stringToArray(text);
-
-        var strokeEnabled = this.hasStroke();
-        for (var li = 0; li < array.length; li++) {
-          var letter = array[li];
-          // skip justify for the last line
-          if (letter === ' ' && !lastLine && align === JUSTIFY) {
-            lineTranslateX += (totalWidth - padding * 2 - width) / spacesNumber;
-          }
-          var charSize = this._measureCharSize(letter, n, li);
-          context.save();
-          context.setAttr('font', this._getContextFont2(n, li));
-
-          var deltaY = this._getValueOfPropertyAt(n, li, "deltaY", false) || 0;
-
-          this._partialTextX = lineTranslateX;
-          this._partialTextY = translateY + lineTranslateY + deltaY;
-          this._partialText = letter;
-
-          this._fillStrokeChar(n, li, context, strokeEnabled);
-          //context.fillStrokeShape(this);
-          context.restore();
-
-          lineTranslateX += charSize.width + letterSpacing;
+    textWidth: number;
+    textHeight: number;
+    constructor(config?: TextConfig) {
+        super(checkDefaultFill(config));
+        // update text data for certain attr changes
+        for (var n = 0; n < attrChangeListLen; n++) {
+            this.on(ATTR_CHANGE_LIST[n] + CHANGE_KONVA, this._setTextData);
         }
-      } else {
-        this._partialTextX = lineTranslateX;
-        this._partialTextY = translateY + lineTranslateY;
-        this._partialText = text;
-
-        context.fillStrokeShape(this);
-      }
-
-      context.restore();
-
-      if (textArrLen > 1) {
-        translateY += lineHeightPx;
-      }
-
+        this._setTextData();
     }
-  }
-  _hitFunc(context) {
-    var width = this.getWidth(),
-      height = this.getHeight();
 
-    context.beginPath();
-    context.rect(0, 0, width, height);
-    context.closePath();
-    context.fillStrokeShape(this);
-  }
-  setText(text) {
-    var str = Util._isString(text)
-      ? text
-      : text === null || text === undefined
-        ? ''
-        : text + '';
-    this._setAttr(TEXT, str);
-    return this;
-  }
-  getWidth() {
-    var isAuto = this.attrs.width === AUTO || this.attrs.width === undefined;
-    return isAuto ? this.getTextWidth() + this.padding() * 2 : this.attrs.width;
-  }
-  getHeight() {
-    var isAuto = this.attrs.height === AUTO || this.attrs.height === undefined;
-    return isAuto
-      ? this.fontSize() * this.textArr.length * this.lineHeight() +
-      this.padding() * 2
-      : this.attrs.height;
-  }
-  /**
-   * get pure text width without padding
-   * @method
-   * @name Konva.Text#getTextWidth
-   * @returns {Number}
-   */
-  getTextWidth() {
-    return this.textWidth;
-  }
-  getTextHeight() {
-    Util.warn(
-      'text.getTextHeight() method is deprecated. Use text.height() - for full height and text.fontSize() - for one line height.'
-    );
-    return this.textHeight;
-  }
+    _sceneFunc(context) {
+        var textArr = this.textArr,
+            textArrLen = textArr.length;
 
-  /**
-   * measure string with the font of current text shape.
-   * That method can't handle multiline text.
-   * @method
-   * @name Konva.Text#measureSize
-   * @param {String} [text] text to measure
-   * @returns {Object} { width , height} of measured text
-   */
-  measureSize(text) {
-    var _context = getDummyContext(),
-      fontSize = this.fontSize(),
-      metrics;
+        if (!this.text()) {
+            return;
+        }
 
-    _context.save();
-    _context.font = this._getContextFont();
+        var padding = this.padding(),
+            fontSize = this.fontSize(),
+            lineHeightPx = this.lineHeight() * fontSize,
+            verticalAlign = this.verticalAlign(),
+            alignY = 0,
+            align = this.align(),
+            totalWidth = this.getWidth(),
+            letterSpacing = this.letterSpacing(),
+            fill = this.fill(),
+            textDecoration = this.textDecoration(),
+            shouldUnderline = textDecoration.indexOf('underline') !== -1,
+            shouldLineThrough = textDecoration.indexOf('line-through') !== -1,
+            n;
 
-    metrics = _context.measureText(text);
-    _context.restore();
-    return {
-      width: metrics.width,
-      height: fontSize,
-    };
-  }
-  _getContextFont() {
-    return (
-      this.fontStyle() +
-      SPACE +
-      this.fontVariant() +
-      SPACE +
-      (this.fontSize() + PX_SPACE) +
-      // wrap font family into " so font families with spaces works ok
-      normalizeFontFamily(this.fontFamily())
-    );
-  }
-  _addTextLine(line) {
-    if (this.align() === JUSTIFY) {
-      line = line.trim();
-    }
-    var width = this._getTextWidth(line);
-    return this.textArr.push({
-      text: line,
-      width: width,
-      lastInParagraph: false,
-    });
-  }
-  _getTextWidth(text) {
-    var letterSpacing = this.letterSpacing();
-    var length = text.length;
-    return (
-      getDummyContext().measureText(text).width +
-      (length ? letterSpacing * (length - 1) : 0)
-    );
-  }
-  _setTextData() {
-    var lines = this.text().split('\n'),
-      fontSize = +this.fontSize(),
-      textWidth = 0,
-      lineHeightPx = this.lineHeight() * fontSize,
-      width = this.attrs.width,
-      height = this.attrs.height,
-      fixedWidth = width !== AUTO && width !== undefined,
-      fixedHeight = height !== AUTO && height !== undefined,
-      padding = this.padding(),
-      maxWidth = width - padding * 2,
-      maxHeightPx = height - padding * 2,
-      currentHeightPx = 0,
-      wrap = this.wrap(),
-      // align = this.align(),
-      shouldWrap = wrap !== NONE,
-      wrapAtWord = wrap !== CHAR && shouldWrap,
-      shouldAddEllipsis = this.ellipsis(),
-      styles = this.styles();
+        var translateY = 0;
+        var translateY = lineHeightPx / 2;
 
-    this.textArr = [];
-    getDummyContext().font = this._getContextFont();
-    var additionalWidth = shouldAddEllipsis ? this._getTextWidth(ELLIPSIS) : 0;
+        var lineTranslateX = 0;
+        var lineTranslateY = 0;
 
-    for (var i = 0, max = lines.length; i < max; ++i) {
-      var line = lines[i];
+        context.setAttr('font', this._getContextFont());
 
-      var lineWidth = this._getTextWidth(line);
-      if (fixedWidth && lineWidth > maxWidth) {
-        /*
-         * if width is fixed and line does not fit entirely
-         * break the line into multiple fitting lines
-         */
-        while (line.length > 0) {
-          /*
-           * use binary search to find the longest substring that
-           * that would fit in the specified width
-           */
-          var low = 0,
-            high = line.length,
-            match = '',
-            matchWidth = 0;
-          while (low < high) {
-            var mid = (low + high) >>> 1,
-              substr = line.slice(0, mid + 1),
-              substrWidth = this._getTextWidth(substr) + additionalWidth;
-            if (substrWidth <= maxWidth) {
-              low = mid + 1;
-              match = substr;
-              matchWidth = substrWidth;
+        context.setAttr('textBaseline', MIDDLE);
+
+        context.setAttr('textAlign', LEFT);
+
+        // handle vertical alignment
+        if (verticalAlign === MIDDLE) {
+            alignY = (this.getHeight() - textArrLen * lineHeightPx - padding * 2) / 2;
+        } else if (verticalAlign === BOTTOM) {
+            alignY = this.getHeight() - textArrLen * lineHeightPx - padding * 2;
+        }
+
+        context.translate(padding, alignY + padding);
+        var charIndex = 0;
+        // draw text lines
+        for (n = 0; n < textArrLen; n++) {
+            var lineTranslateX = 0;
+            var lineTranslateY = 0;
+            var obj = textArr[n],
+                text = obj.text,
+                width = obj.width,
+                lastLine = obj.lastInParagraph,
+                spacesNumber,
+                oneWord,
+                lineWidth;
+
+            // horizontal alignment
+            context.save();
+            if (align === RIGHT) {
+                lineTranslateX += totalWidth - width - padding * 2;
+            } else if (align === CENTER) {
+                lineTranslateX += (totalWidth - width - padding * 2) / 2;
+            }
+
+            if (shouldUnderline) {
+                context.save();
+                context.beginPath();
+
+                context.moveTo(
+                    lineTranslateX,
+                    translateY + lineTranslateY + Math.round(fontSize / 2)
+                );
+                spacesNumber = text.split(' ').length - 1;
+                oneWord = spacesNumber === 0;
+                lineWidth =
+                    align === JUSTIFY && lastLine && !oneWord
+                        ? totalWidth - padding * 2
+                        : width;
+                context.lineTo(
+                    lineTranslateX + Math.round(lineWidth),
+                    translateY + lineTranslateY + Math.round(fontSize / 2)
+                );
+
+                // I have no idea what is real ratio
+                // just /15 looks good enough
+                context.lineWidth = fontSize / 15;
+                context.strokeStyle = fill;
+                context.stroke();
+                context.restore();
+            }
+            if (shouldLineThrough) {
+                context.save();
+                context.beginPath();
+                context.moveTo(lineTranslateX, translateY + lineTranslateY);
+                spacesNumber = text.split(' ').length - 1;
+                oneWord = spacesNumber === 0;
+                lineWidth =
+                    align === JUSTIFY && lastLine && !oneWord
+                        ? totalWidth - padding * 2
+                        : width;
+                context.lineTo(
+                    lineTranslateX + Math.round(lineWidth),
+                    translateY + lineTranslateY
+                );
+                context.lineWidth = fontSize / 15;
+                context.strokeStyle = fill;
+                context.stroke();
+                context.restore();
+            }
+
+            if (letterSpacing !== 0 || align === JUSTIFY || this.styles()) {
+                //   var words = text.split(' ');
+                spacesNumber = text.split(' ').length - 1;
+                var array = stringToArray(text);
+
+                var strokeEnabled = this.hasStroke();
+
+                for (var li = 0; li < array.length; li++) {
+                    var letter = array[li];
+                    // skip justify for the last line
+                    if (letter === ' ' && !lastLine && align === JUSTIFY) {
+                        lineTranslateX += (totalWidth - padding * 2 - width) / spacesNumber;
+                    }
+                    var charSize = this._measureCharSize(letter, charIndex);
+                    context.save();
+
+                    context.setAttr('font', this._getContextFont2(charIndex));
+                    var filter = this._getValueOfPropertyAt(charIndex, "filter", false);
+                    if (filter) context.setAttr("filter", filter);
+
+                    var deltaY = this._getValueOfPropertyAt(charIndex, "deltaY", false) || 0;
+
+                    this._partialTextX = lineTranslateX;
+                    this._partialTextY = translateY + lineTranslateY + deltaY;
+                    this._partialText = letter;
+
+                    this._fillStrokeChar(charIndex, context, strokeEnabled);
+                    //context.fillStrokeShape(this);
+                    context.restore();
+                    charIndex += 1;
+                    lineTranslateX += charSize.width + letterSpacing;
+                }
             } else {
-              high = mid;
-            }
-          }
-          /*
-           * 'low' is now the index of the substring end
-           * 'match' is the substring
-           * 'matchWidth' is the substring width in px
-           */
-          if (match) {
-            // a fitting substring was found
-            if (wrapAtWord) {
-              // try to find a space or dash where wrapping could be done
-              var wrapIndex;
-              var nextChar = line[match.length];
-              var nextIsSpaceOrDash = nextChar === SPACE || nextChar === DASH;
-              if (nextIsSpaceOrDash && matchWidth <= maxWidth) {
-                wrapIndex = match.length;
-              } else {
-                wrapIndex =
-                  Math.max(match.lastIndexOf(SPACE), match.lastIndexOf(DASH)) +
-                  1;
-              }
-              if (wrapIndex > 0) {
-                // re-cut the substring found at the space/dash position
-                low = wrapIndex;
-                match = match.slice(0, low);
-                matchWidth = this._getTextWidth(match);
-              }
-            }
-            // if (align === 'right') {
-            match = match.trimRight();
-            // }
-            this._addTextLine(match);
-            textWidth = Math.max(textWidth, matchWidth);
-            currentHeightPx += lineHeightPx;
+                this._partialTextX = lineTranslateX;
+                this._partialTextY = translateY + lineTranslateY;
+                this._partialText = text;
 
-            var shouldHandleEllipsis =
-              this._shouldHandleEllipsis(currentHeightPx);
-            if (shouldHandleEllipsis) {
-              this._tryToAddEllipsisToLastLine();
-              /*
-               * stop wrapping if wrapping is disabled or if adding
-               * one more line would overflow the fixed height
-               */
-              break;
+                context.fillStrokeShape(this);
             }
-            line = line.slice(low);
-            line = line.trimLeft();
-            if (line.length > 0) {
-              // Check if the remaining text would fit on one line
-              lineWidth = this._getTextWidth(line);
-              if (lineWidth <= maxWidth) {
-                // if it does, add the line and break out of the loop
+
+            context.restore();
+
+            if (textArrLen > 1) {
+                translateY += lineHeightPx;
+            }
+
+        }
+    }
+    _hitFunc(context) {
+        var width = this.getWidth(),
+            height = this.getHeight();
+
+        context.beginPath();
+        context.rect(0, 0, width, height);
+        context.closePath();
+        context.fillStrokeShape(this);
+    }
+    setText(text) {
+        var str = Util._isString(text)
+            ? text
+            : text === null || text === undefined
+                ? ''
+                : text + '';
+        this._setAttr(TEXT, str);
+        return this;
+    }
+    getWidth() {
+        var isAuto = this.attrs.width === AUTO || this.attrs.width === undefined;
+        return isAuto ? this.getTextWidth() + this.padding() * 2 : this.attrs.width;
+    }
+    getHeight() {
+        var isAuto = this.attrs.height === AUTO || this.attrs.height === undefined;
+        return isAuto
+            ? this.fontSize() * this.textArr.length * this.lineHeight() +
+            this.padding() * 2
+            : this.attrs.height;
+    }
+    /**
+     * get pure text width without padding
+     * @method
+     * @name Konva.Text#getTextWidth
+     * @returns {Number}
+     */
+    getTextWidth() {
+        return this.textWidth;
+    }
+    getTextHeight() {
+        Util.warn(
+            'text.getTextHeight() method is deprecated. Use text.height() - for full height and text.fontSize() - for one line height.'
+        );
+        return this.textHeight;
+    }
+
+    /**
+     * measure string with the font of current text shape.
+     * That method can't handle multiline text.
+     * @method
+     * @name Konva.Text#measureSize
+     * @param {String} [text] text to measure
+     * @returns {Object} { width , height} of measured text
+     */
+    measureSize(text) {
+        var _context = getDummyContext(),
+            fontSize = this.fontSize(),
+            metrics;
+
+        _context.save();
+        _context.font = this._getContextFont();
+
+        metrics = _context.measureText(text);
+        _context.restore();
+        return {
+            width: metrics.width,
+            height: fontSize,
+        };
+    }
+    _getContextFont() {
+        return (
+            this.fontStyle() +
+            SPACE +
+            this.fontVariant() +
+            SPACE +
+            (this.fontSize() + PX_SPACE) +
+            // wrap font family into " so font families with spaces works ok
+            normalizeFontFamily(this.fontFamily())
+        );
+    }
+    _addTextLine(line) {
+        if (this.align() === JUSTIFY) {
+            line = line.trim();
+        }
+        var width = this._getTextWidth(line);
+        return this.textArr.push({
+            text: line,
+            width: width,
+            lastInParagraph: false,
+        });
+    }
+    _getTextWidth(text) {
+        var letterSpacing = this.letterSpacing();
+        var length = text.length;
+        return (
+            getDummyContext().measureText(text).width +
+            (length ? letterSpacing * (length - 1) : 0)
+        );
+    }
+    _setTextData() {
+        var lines = this.text().split('\n'),
+            fontSize = +this.fontSize(),
+            textWidth = 0,
+            lineHeightPx = this.lineHeight() * fontSize,
+            width = this.attrs.width,
+            height = this.attrs.height,
+            fixedWidth = width !== AUTO && width !== undefined,
+            fixedHeight = height !== AUTO && height !== undefined,
+            padding = this.padding(),
+            maxWidth = width - padding * 2,
+            maxHeightPx = height - padding * 2,
+            currentHeightPx = 0,
+            wrap = this.wrap(),
+            // align = this.align(),
+            shouldWrap = wrap !== NONE,
+            wrapAtWord = wrap !== CHAR && shouldWrap,
+            shouldAddEllipsis = this.ellipsis(),
+            styles = this.styles();
+
+        this.textArr = [];
+        getDummyContext().font = this._getContextFont();
+        var additionalWidth = shouldAddEllipsis ? this._getTextWidth(ELLIPSIS) : 0;
+
+        for (var i = 0, max = lines.length; i < max; ++i) {
+            var line = lines[i];
+
+            var lineWidth = this._getTextWidth(line);
+            if (fixedWidth && lineWidth > maxWidth) {
+                /*
+                 * if width is fixed and line does not fit entirely
+                 * break the line into multiple fitting lines
+                 */
+                while (line.length > 0) {
+                    /*
+                     * use binary search to find the longest substring that
+                     * that would fit in the specified width
+                     */
+                    var low = 0,
+                        high = line.length,
+                        match = '',
+                        matchWidth = 0;
+                    while (low < high) {
+                        var mid = (low + high) >>> 1,
+                            substr = line.slice(0, mid + 1),
+                            substrWidth = this._getTextWidth(substr) + additionalWidth;
+                        if (substrWidth <= maxWidth) {
+                            low = mid + 1;
+                            match = substr;
+                            matchWidth = substrWidth;
+                        } else {
+                            high = mid;
+                        }
+                    }
+                    /*
+                     * 'low' is now the index of the substring end
+                     * 'match' is the substring
+                     * 'matchWidth' is the substring width in px
+                     */
+                    if (match) {
+                        // a fitting substring was found
+                        if (wrapAtWord) {
+                            // try to find a space or dash where wrapping could be done
+                            var wrapIndex;
+                            var nextChar = line[match.length];
+                            var nextIsSpaceOrDash = nextChar === SPACE || nextChar === DASH;
+                            if (nextIsSpaceOrDash && matchWidth <= maxWidth) {
+                                wrapIndex = match.length;
+                            } else {
+                                wrapIndex =
+                                    Math.max(match.lastIndexOf(SPACE), match.lastIndexOf(DASH)) +
+                                    1;
+                            }
+                            if (wrapIndex > 0) {
+                                // re-cut the substring found at the space/dash position
+                                low = wrapIndex;
+                                match = match.slice(0, low);
+                                matchWidth = this._getTextWidth(match);
+                            }
+                        }
+                        // if (align === 'right') {
+                        match = match.trimRight();
+                        // }
+                        this._addTextLine(match);
+                        textWidth = Math.max(textWidth, matchWidth);
+                        currentHeightPx += lineHeightPx;
+
+                        var shouldHandleEllipsis =
+                            this._shouldHandleEllipsis(currentHeightPx);
+                        if (shouldHandleEllipsis) {
+                            this._tryToAddEllipsisToLastLine();
+                            /*
+                             * stop wrapping if wrapping is disabled or if adding
+                             * one more line would overflow the fixed height
+                             */
+                            break;
+                        }
+                        line = line.slice(low);
+                        line = line.trimLeft();
+                        if (line.length > 0) {
+                            // Check if the remaining text would fit on one line
+                            lineWidth = this._getTextWidth(line);
+                            if (lineWidth <= maxWidth) {
+                                // if it does, add the line and break out of the loop
+                                this._addTextLine(line);
+                                currentHeightPx += lineHeightPx;
+                                textWidth = Math.max(textWidth, lineWidth);
+                                break;
+                            }
+                        }
+                    } else {
+                        // not even one character could fit in the element, abort
+                        break;
+                    }
+                }
+            } else {
+                // element width is automatically adjusted to max line width
                 this._addTextLine(line);
                 currentHeightPx += lineHeightPx;
                 textWidth = Math.max(textWidth, lineWidth);
-                break;
-              }
+                if (this._shouldHandleEllipsis(currentHeightPx) && i < max - 1) {
+                    this._tryToAddEllipsisToLastLine();
+                }
             }
-          } else {
-            // not even one character could fit in the element, abort
-            break;
-          }
+            // if element height is fixed, abort if adding one more line would overflow
+            if (fixedHeight && currentHeightPx + lineHeightPx > maxHeightPx) {
+                break;
+            }
+            if (this.textArr[this.textArr.length - 1]) {
+                this.textArr[this.textArr.length - 1].lastInParagraph = true;
+            }
         }
-      } else {
-        // element width is automatically adjusted to max line width
-        this._addTextLine(line);
-        currentHeightPx += lineHeightPx;
-        textWidth = Math.max(textWidth, lineWidth);
-        if (this._shouldHandleEllipsis(currentHeightPx) && i < max - 1) {
-          this._tryToAddEllipsisToLastLine();
+
+        this.textHeight = fontSize;
+        // var maxTextWidth = 0;
+        // for(var j = 0; j < this.textArr.length; j++) {
+        //     maxTextWidth = Math.max(maxTextWidth, this.textArr[j].width);
+        // }
+        this.textWidth = textWidth;
+    }
+
+    /**
+     * whether to handle ellipsis, there are two cases:
+     * 1. the current line is the last line
+     * 2. wrap is NONE
+     * @param {Number} currentHeightPx
+     * @returns
+     */
+    _shouldHandleEllipsis(currentHeightPx: number): boolean {
+        var fontSize = +this.fontSize(),
+            lineHeightPx = this.lineHeight() * fontSize,
+            height = this.attrs.height,
+            fixedHeight = height !== AUTO && height !== undefined,
+            padding = this.padding(),
+            maxHeightPx = height - padding * 2,
+            wrap = this.wrap(),
+            shouldWrap = wrap !== NONE;
+
+        return (
+            !shouldWrap ||
+            (fixedHeight && currentHeightPx + lineHeightPx > maxHeightPx)
+        );
+    }
+
+    _tryToAddEllipsisToLastLine(): void {
+        var width = this.attrs.width,
+            fixedWidth = width !== AUTO && width !== undefined,
+            padding = this.padding(),
+            maxWidth = width - padding * 2,
+            shouldAddEllipsis = this.ellipsis();
+
+        var lastLine = this.textArr[this.textArr.length - 1];
+        if (!lastLine || !shouldAddEllipsis) {
+            return;
         }
-      }
-      // if element height is fixed, abort if adding one more line would overflow
-      if (fixedHeight && currentHeightPx + lineHeightPx > maxHeightPx) {
-        break;
-      }
-      if (this.textArr[this.textArr.length - 1]) {
-        this.textArr[this.textArr.length - 1].lastInParagraph = true;
-      }
-    }
 
-    this.textHeight = fontSize;
-    // var maxTextWidth = 0;
-    // for(var j = 0; j < this.textArr.length; j++) {
-    //     maxTextWidth = Math.max(maxTextWidth, this.textArr[j].width);
-    // }
-    this.textWidth = textWidth;
-  }
-
-  /**
-   * whether to handle ellipsis, there are two cases:
-   * 1. the current line is the last line
-   * 2. wrap is NONE
-   * @param {Number} currentHeightPx
-   * @returns
-   */
-  _shouldHandleEllipsis(currentHeightPx: number): boolean {
-    var fontSize = +this.fontSize(),
-      lineHeightPx = this.lineHeight() * fontSize,
-      height = this.attrs.height,
-      fixedHeight = height !== AUTO && height !== undefined,
-      padding = this.padding(),
-      maxHeightPx = height - padding * 2,
-      wrap = this.wrap(),
-      shouldWrap = wrap !== NONE;
-
-    return (
-      !shouldWrap ||
-      (fixedHeight && currentHeightPx + lineHeightPx > maxHeightPx)
-    );
-  }
-
-  _tryToAddEllipsisToLastLine(): void {
-    var width = this.attrs.width,
-      fixedWidth = width !== AUTO && width !== undefined,
-      padding = this.padding(),
-      maxWidth = width - padding * 2,
-      shouldAddEllipsis = this.ellipsis();
-
-    var lastLine = this.textArr[this.textArr.length - 1];
-    if (!lastLine || !shouldAddEllipsis) {
-      return;
-    }
-
-    if (fixedWidth) {
-      var haveSpace = this._getTextWidth(lastLine.text + ELLIPSIS) < maxWidth;
-      if (!haveSpace) {
-        lastLine.text = lastLine.text.slice(0, lastLine.text.length - 3);
-      }
-    }
-
-    this.textArr.splice(this.textArr.length - 1, 1);
-    this._addTextLine(lastLine.text + ELLIPSIS);
-  }
-
-  // for text we can't disable stroke scaling
-  // if we do, the result will be unexpected
-  getStrokeScaleEnabled() {
-    return true;
-  }
-
-
-
-
-
-
-  _isEmptyStyles(lineIndex) {
-    var styles = this.styles();
-    if (!styles) {
-      return true;
-    }
-    if (typeof lineIndex !== 'undefined' && !styles[lineIndex]) {
-      return true;
-    }
-    var obj = typeof lineIndex === 'undefined' ? styles : { line: styles[lineIndex] };
-
-    for (var p1 in obj) {
-      for (var p2 in obj[p1]) {
-        // eslint-disable-next-line no-unused-vars
-        for (var p3 in obj[p1][p2]) {
-          return false;
+        if (fixedWidth) {
+            var haveSpace = this._getTextWidth(lastLine.text + ELLIPSIS) < maxWidth;
+            if (!haveSpace) {
+                lastLine.text = lastLine.text.slice(0, lastLine.text.length - 3);
+            }
         }
-      }
-    }
-    return true;
-  }
-  _getStyleDeclaration(lineIndex: number, charIndex: number) {
-    var styles = this.styles();
-    var lineStyle = styles && styles[lineIndex];
-    if (!lineStyle) {
-      return null;
+
+        this.textArr.splice(this.textArr.length - 1, 1);
+        this._addTextLine(lastLine.text + ELLIPSIS);
     }
 
-    return lineStyle[charIndex];
-  }
-  _getValueOfPropertyAt(lineIndex: number, charIndex: number, property: string, def?: boolean) {
-    var charStyle = this._getStyleDeclaration(lineIndex, charIndex);
-    if (charStyle && typeof charStyle[property] !== 'undefined') {
-      return charStyle[property];
+    // for text we can't disable stroke scaling
+    // if we do, the result will be unexpected
+    getStrokeScaleEnabled() {
+        return true;
     }
-    if (def != false)
-      return this.getAttr(property);
-    else
-      return null;
-  }
-  _measureCharSize(char: string, lineIndex: number, charIndex: number,) {
-    var _context = getDummyContext(),
-      fontSize = this._getValueOfPropertyAt(lineIndex, charIndex, 'fontSize'),
-      metrics;
 
-    _context.save();
-    _context.font = this._getContextFont2(lineIndex, charIndex);
-    metrics = _context.measureText(char);
-    _context.restore();
-    return {
-      width: metrics.width,
-      height: fontSize,
-    };
-  }
-  _getContextFont2(lineIndex: number, charIndex: number) {
-    return (
-      this._getValueOfPropertyAt(lineIndex, charIndex, "fontStyle") +
-      SPACE +
-      this._getValueOfPropertyAt(lineIndex, charIndex, "fontVariant") +
-      SPACE +
-      (this._getValueOfPropertyAt(lineIndex, charIndex, "fontSize") + PX_SPACE) +
-      // wrap font family into " so font families with spaces works ok
-      normalizeFontFamily(this._getValueOfPropertyAt(lineIndex, charIndex, "fontFamily"))
-    );
-  }
-  _fillStrokeChar(lineIndex: number, charIndex: number, context, strokeEnabled) {
 
-    var strokeStyle = this._getValueOfPropertyAt(lineIndex, charIndex, "stroke");
-    context.setAttr("strokeStyle", strokeStyle);
 
-    var fillStyle = this._getValueOfPropertyAt(lineIndex, charIndex, "fill");
-    context.setAttr("fillStyle", fillStyle);
 
-    if (this.attrs.fillAfterStrokeEnabled) {
-      if (strokeEnabled) 
-        this._strokeFunc(context);
-      
-      if (this.fillEnabled()) 
-        this._fillFunc(context);
-      
-    } else {
-      if (this.fillEnabled()) 
-        this._fillFunc(context);
-      
-      if (strokeEnabled) 
-        this._strokeFunc(context);
-      
+
+
+    _isEmptyStyles(lineIndex) {
+        var styles = this.styles();
+        if (!styles) {
+            return true;
+        }
+        if (typeof lineIndex !== 'undefined' && !styles[lineIndex]) {
+            return true;
+        }
+        var obj = typeof lineIndex === 'undefined' ? styles : { line: styles[lineIndex] };
+
+        for (var p1 in obj) {
+            for (var p2 in obj[p1]) {
+                // eslint-disable-next-line no-unused-vars
+                for (var p3 in obj[p1][p2]) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
-  }
+    _getStyleDeclaration(charIndex: number) {
+        var styles = this.styles();
+        var lineStyle = styles && styles[charIndex];
+        if (!lineStyle) {
+            return null;
+        }
+
+        return lineStyle;
+    }
+    _getValueOfPropertyAt(charIndex: number, property: string, def?: boolean) {
+        var charStyle = this._getStyleDeclaration(charIndex);
+        if (charStyle && typeof charStyle[property] !== 'undefined') {
+            return charStyle[property];
+        }
+        if (def != false)
+            return this.getAttr(property);
+        else
+            return null;
+    }
+    _measureCharSize(char: string, charIndex: number,) {
+        var _context = getDummyContext(),
+            fontSize = this._getValueOfPropertyAt(charIndex, 'fontSize'),
+            metrics;
+
+        _context.save();
+        _context.font = this._getContextFont2(charIndex);
+        metrics = _context.measureText(char);
+        _context.restore();
+        return {
+            width: metrics.width,
+            height: fontSize,
+        };
+    }
+    _getContextFont2(charIndex: number) {
+        return (
+            this._getValueOfPropertyAt(charIndex, "fontStyle") +
+            SPACE +
+            this._getValueOfPropertyAt(charIndex, "fontVariant") +
+            SPACE +
+            (this._getValueOfPropertyAt(charIndex, "fontSize") + PX_SPACE) +
+            // wrap font family into " so font families with spaces works ok
+            normalizeFontFamily(this._getValueOfPropertyAt(charIndex, "fontFamily"))
+        );
+    }
+    _fillStrokeChar(charIndex: number, context, strokeEnabled) {
+
+        var strokeStyle = this._getValueOfPropertyAt(charIndex, "stroke");
+        context.setAttr("strokeStyle", strokeStyle);
+
+        var fillStyle = this._getValueOfPropertyAt(charIndex, "fill");
+        context.setAttr("fillStyle", fillStyle);
+
+        if (this.attrs.fillAfterStrokeEnabled) {
+            if (strokeEnabled)
+                this._strokeFunc(context);
+
+            if (this.fillEnabled())
+                this._fillFunc(context);
+
+        } else {
+            if (this.fillEnabled())
+                this._fillFunc(context);
+
+            if (strokeEnabled)
+                this._strokeFunc(context);
+
+        }
+    }
 
 
 
-  fontFamily: GetSet<string, this>;
-  fontSize: GetSet<number, this>;
-  fontStyle: GetSet<string, this>;
-  fontVariant: GetSet<string, this>;
-  align: GetSet<string, this>;
-  letterSpacing: GetSet<number, this>;
-  verticalAlign: GetSet<string, this>;
-  padding: GetSet<number, this>;
-  lineHeight: GetSet<number, this>;
-  textDecoration: GetSet<string, this>;
-  text: GetSet<string, this>;
-  wrap: GetSet<string, this>;
-  ellipsis: GetSet<boolean, this>;
-  styles!: GetSet<object, this>;
+    fontFamily: GetSet<string, this>;
+    fontSize: GetSet<number, this>;
+    fontStyle: GetSet<string, this>;
+    fontVariant: GetSet<string, this>;
+    align: GetSet<string, this>;
+    letterSpacing: GetSet<number, this>;
+    verticalAlign: GetSet<string, this>;
+    padding: GetSet<number, this>;
+    lineHeight: GetSet<number, this>;
+    textDecoration: GetSet<string, this>;
+    text: GetSet<string, this>;
+    wrap: GetSet<string, this>;
+    ellipsis: GetSet<boolean, this>;
+    styles!: GetSet<object, this>;
 }
 
 Text.prototype._fillFunc = _fillFunc;
 Text.prototype._strokeFunc = _strokeFunc;
 Text.prototype.className = TEXT_UPPER;
 Text.prototype._attrsAffectingSize = [
-  'text',
-  'fontSize',
-  'padding',
-  'wrap',
-  'lineHeight',
-  'letterSpacing',
+    'text',
+    'fontSize',
+    'padding',
+    'wrap',
+    'lineHeight',
+    'letterSpacing',
 ];
 _registerNode(Text);
 
