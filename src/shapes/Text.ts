@@ -212,7 +212,7 @@ export class Text extends Shape<TextConfig> {
         }
 
         context.translate(padding, alignY + padding);
-        var charIndex = 0;
+
         // draw text lines
         for (n = 0; n < textArrLen; n++) {
             var lineTranslateX = 0;
@@ -292,23 +292,22 @@ export class Text extends Shape<TextConfig> {
                     if (letter === ' ' && !lastLine && align === JUSTIFY) {
                         lineTranslateX += (totalWidth - padding * 2 - width) / spacesNumber;
                     }
-                    var charSize = this._measureCharSize(letter, charIndex);
+                    var charSize = this._measureCharSize(letter, n, li);
                     context.save();
 
-                    context.setAttr('font', this._getContextFont2(charIndex));
-                    var filter = this._getValueOfPropertyAt(charIndex, "filter", false);
+                    context.setAttr('font', this._getContextFont2(n, li));
+                    var filter = this._getValueOfPropertyAt(n, li, "filter", false);
                     if (filter) context.setAttr("filter", filter);
-
-                    var deltaY = this._getValueOfPropertyAt(charIndex, "deltaY", false) || 0;
-
+                    var deltaY = this._getValueOfPropertyAt(n, li, "deltaY", false) || 0;
+                  
                     this._partialTextX = lineTranslateX;
                     this._partialTextY = translateY + lineTranslateY + deltaY;
                     this._partialText = letter;
 
-                    this._fillStrokeChar(charIndex, context, strokeEnabled);
+                    this._fillStrokeChar(n, li, context, strokeEnabled);
                     //context.fillStrokeShape(this);
                     context.restore();
-                    charIndex += 1;
+
                     lineTranslateX += charSize.width + letterSpacing;
                 }
             } else {
@@ -643,17 +642,17 @@ export class Text extends Shape<TextConfig> {
         }
         return true;
     }
-    _getStyleDeclaration(charIndex: number) {
+    _getStyleDeclaration(lineIndex: number, charIndex: number) {
         var styles = this.styles();
-        var lineStyle = styles && styles[charIndex];
+        var lineStyle = styles && styles[lineIndex]
         if (!lineStyle) {
             return null;
         }
 
-        return lineStyle;
+        return lineStyle[charIndex];
     }
-    _getValueOfPropertyAt(charIndex: number, property: string, def?: boolean) {
-        var charStyle = this._getStyleDeclaration(charIndex);
+    _getValueOfPropertyAt(lineIndex: number, charIndex: number, property: string, def?: boolean) {
+        var charStyle = this._getStyleDeclaration(lineIndex, charIndex);
         if (charStyle && typeof charStyle[property] !== 'undefined') {
             return charStyle[property];
         }
@@ -662,13 +661,13 @@ export class Text extends Shape<TextConfig> {
         else
             return null;
     }
-    _measureCharSize(char: string, charIndex: number,) {
+    _measureCharSize(char: string, lineIndex: number, charIndex: number,) {
         var _context = getDummyContext(),
-            fontSize = this._getValueOfPropertyAt(charIndex, 'fontSize'),
+            fontSize = this._getValueOfPropertyAt(lineIndex, charIndex, 'fontSize'),
             metrics;
 
         _context.save();
-        _context.font = this._getContextFont2(charIndex);
+        _context.font = this._getContextFont2(lineIndex, charIndex);
         metrics = _context.measureText(char);
         _context.restore();
         return {
@@ -676,39 +675,35 @@ export class Text extends Shape<TextConfig> {
             height: fontSize,
         };
     }
-    _getContextFont2(charIndex: number) {
+    _getContextFont2(lineIndex: number, charIndex: number) {
         return (
-            this._getValueOfPropertyAt(charIndex, "fontStyle") +
+            this._getValueOfPropertyAt(lineIndex, charIndex, "fontStyle") +
             SPACE +
-            this._getValueOfPropertyAt(charIndex, "fontVariant") +
+            this._getValueOfPropertyAt(lineIndex, charIndex, "fontVariant") +
             SPACE +
-            (this._getValueOfPropertyAt(charIndex, "fontSize") + PX_SPACE) +
+            (this._getValueOfPropertyAt(lineIndex, charIndex, "fontSize") + PX_SPACE) +
             // wrap font family into " so font families with spaces works ok
-            normalizeFontFamily(this._getValueOfPropertyAt(charIndex, "fontFamily"))
+            normalizeFontFamily(this._getValueOfPropertyAt(lineIndex, charIndex, "fontFamily"))
         );
     }
-    _fillStrokeChar(charIndex: number, context, strokeEnabled) {
+    _fillStrokeChar(lineIndex: number, charIndex: number, context, strokeEnabled) {
 
-        var strokeStyle = this._getValueOfPropertyAt(charIndex, "stroke");
+        var strokeStyle = this._getValueOfPropertyAt(lineIndex, charIndex, "stroke");
         context.setAttr("strokeStyle", strokeStyle);
 
-        var fillStyle = this._getValueOfPropertyAt(charIndex, "fill");
+        var fillStyle = this._getValueOfPropertyAt(lineIndex, charIndex, "fill");
         context.setAttr("fillStyle", fillStyle);
 
         if (this.attrs.fillAfterStrokeEnabled) {
             if (strokeEnabled)
                 this._strokeFunc(context);
-
             if (this.fillEnabled())
                 this._fillFunc(context);
-
         } else {
             if (this.fillEnabled())
                 this._fillFunc(context);
-
             if (strokeEnabled)
                 this._strokeFunc(context);
-
         }
     }
 

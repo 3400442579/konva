@@ -8,7 +8,7 @@
    * Konva JavaScript Framework v8.3.13
    * http://konvajs.org/
    * Licensed under the MIT
-   * Date: Tue Oct 25 2022
+   * Date: Fri Oct 28 2022
    *
    * Original work Copyright (C) 2011 - 2013 by Eric Rowell (KineticJS)
    * Modified work Copyright (C) 2014 - present by Anton Lavrenov (Konva)
@@ -13425,7 +13425,6 @@
               alignY = this.getHeight() - textArrLen * lineHeightPx - padding * 2;
           }
           context.translate(padding, alignY + padding);
-          var charIndex = 0;
           // draw text lines
           for (n = 0; n < textArrLen; n++) {
               var lineTranslateX = 0;
@@ -13484,20 +13483,19 @@
                       if (letter === ' ' && !lastLine && align === JUSTIFY) {
                           lineTranslateX += (totalWidth - padding * 2 - width) / spacesNumber;
                       }
-                      var charSize = this._measureCharSize(letter, charIndex);
+                      var charSize = this._measureCharSize(letter, n, li);
                       context.save();
-                      context.setAttr('font', this._getContextFont2(charIndex));
-                      var filter = this._getValueOfPropertyAt(charIndex, "filter", false);
+                      context.setAttr('font', this._getContextFont2(n, li));
+                      var filter = this._getValueOfPropertyAt(n, li, "filter", false);
                       if (filter)
                           context.setAttr("filter", filter);
-                      var deltaY = this._getValueOfPropertyAt(charIndex, "deltaY", false) || 0;
+                      var deltaY = this._getValueOfPropertyAt(n, li, "deltaY", false) || 0;
                       this._partialTextX = lineTranslateX;
                       this._partialTextY = translateY + lineTranslateY + deltaY;
                       this._partialText = letter;
-                      this._fillStrokeChar(charIndex, context, strokeEnabled);
+                      this._fillStrokeChar(n, li, context, strokeEnabled);
                       //context.fillStrokeShape(this);
                       context.restore();
-                      charIndex += 1;
                       lineTranslateX += charSize.width + letterSpacing;
                   }
               }
@@ -13767,16 +13765,16 @@
           }
           return true;
       }
-      _getStyleDeclaration(charIndex) {
+      _getStyleDeclaration(lineIndex, charIndex) {
           var styles = this.styles();
-          var lineStyle = styles && styles[charIndex];
+          var lineStyle = styles && styles[lineIndex];
           if (!lineStyle) {
               return null;
           }
-          return lineStyle;
+          return lineStyle[charIndex];
       }
-      _getValueOfPropertyAt(charIndex, property, def) {
-          var charStyle = this._getStyleDeclaration(charIndex);
+      _getValueOfPropertyAt(lineIndex, charIndex, property, def) {
+          var charStyle = this._getStyleDeclaration(lineIndex, charIndex);
           if (charStyle && typeof charStyle[property] !== 'undefined') {
               return charStyle[property];
           }
@@ -13785,10 +13783,10 @@
           else
               return null;
       }
-      _measureCharSize(char, charIndex) {
-          var _context = getDummyContext(), fontSize = this._getValueOfPropertyAt(charIndex, 'fontSize'), metrics;
+      _measureCharSize(char, lineIndex, charIndex) {
+          var _context = getDummyContext(), fontSize = this._getValueOfPropertyAt(lineIndex, charIndex, 'fontSize'), metrics;
           _context.save();
-          _context.font = this._getContextFont2(charIndex);
+          _context.font = this._getContextFont2(lineIndex, charIndex);
           metrics = _context.measureText(char);
           _context.restore();
           return {
@@ -13796,19 +13794,19 @@
               height: fontSize,
           };
       }
-      _getContextFont2(charIndex) {
-          return (this._getValueOfPropertyAt(charIndex, "fontStyle") +
+      _getContextFont2(lineIndex, charIndex) {
+          return (this._getValueOfPropertyAt(lineIndex, charIndex, "fontStyle") +
               SPACE +
-              this._getValueOfPropertyAt(charIndex, "fontVariant") +
+              this._getValueOfPropertyAt(lineIndex, charIndex, "fontVariant") +
               SPACE +
-              (this._getValueOfPropertyAt(charIndex, "fontSize") + PX_SPACE) +
+              (this._getValueOfPropertyAt(lineIndex, charIndex, "fontSize") + PX_SPACE) +
               // wrap font family into " so font families with spaces works ok
-              normalizeFontFamily(this._getValueOfPropertyAt(charIndex, "fontFamily")));
+              normalizeFontFamily(this._getValueOfPropertyAt(lineIndex, charIndex, "fontFamily")));
       }
-      _fillStrokeChar(charIndex, context, strokeEnabled) {
-          var strokeStyle = this._getValueOfPropertyAt(charIndex, "stroke");
+      _fillStrokeChar(lineIndex, charIndex, context, strokeEnabled) {
+          var strokeStyle = this._getValueOfPropertyAt(lineIndex, charIndex, "stroke");
           context.setAttr("strokeStyle", strokeStyle);
-          var fillStyle = this._getValueOfPropertyAt(charIndex, "fill");
+          var fillStyle = this._getValueOfPropertyAt(lineIndex, charIndex, "fill");
           context.setAttr("fillStyle", fillStyle);
           if (this.attrs.fillAfterStrokeEnabled) {
               if (strokeEnabled)
