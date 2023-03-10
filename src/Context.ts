@@ -2,6 +2,7 @@ import { Util } from './Util';
 import { Konva } from './Global';
 import { Canvas } from './Canvas';
 import { Shape } from './Shape';
+import { IRect } from './types';
 
 function simplifyArray(arr: Array<any>) {
   var retArr = [],
@@ -137,7 +138,7 @@ export class Context {
     }
   }
 
-  _fill(shape) {
+  _fill(shape: Shape) {
     // abstract
   }
   /**
@@ -259,7 +260,7 @@ export class Context {
    * @param {Number} [bounds.width]
    * @param {Number} [bounds.height]
    */
-  clear(bounds?) {
+  clear(bounds?: IRect) {
     var canvas = this.getCanvas();
 
     if (bounds) {
@@ -297,7 +298,7 @@ export class Context {
     }
   }
 
-  setAttr(attr, val) {
+  setAttr(attr: string, val) {
     this._context[attr] = val;
   }
 
@@ -306,7 +307,14 @@ export class Context {
    * @method
    * @name Konva.Context#arc
    */
-  arc(a0, a1, a2, a3, a4, a5) {
+  arc(
+    a0: number,
+    a1: number,
+    a2: number,
+    a3: number,
+    a4: number,
+    a5?: boolean
+  ) {
     this._context.arc(a0, a1, a2, a3, a4, a5);
   }
   /**
@@ -314,7 +322,7 @@ export class Context {
    * @method
    * @name Konva.Context#arcTo
    */
-  arcTo(a0, a1, a2, a3, a4) {
+  arcTo(a0: number, a1: number, a2: number, a3: number, a4: number) {
     this._context.arcTo(a0, a1, a2, a3, a4);
   }
   /**
@@ -330,7 +338,14 @@ export class Context {
    * @method
    * @name Konva.Context#bezierCurveTo
    */
-  bezierCurveTo(a0, a1, a2, a3, a4, a5) {
+  bezierCurveTo(
+    a0: number,
+    a1: number,
+    a2: number,
+    a3: number,
+    a4: number,
+    a5: number
+  ) {
     this._context.bezierCurveTo(a0, a1, a2, a3, a4, a5);
   }
   /**
@@ -338,7 +353,7 @@ export class Context {
    * @method
    * @name Konva.Context#clearRect
    */
-  clearRect(a0, a1, a2, a3) {
+  clearRect(a0: number, a1: number, a2: number, a3: number) {
     this._context.clearRect(a0, a1, a2, a3);
   }
   /**
@@ -378,7 +393,7 @@ export class Context {
    * @method
    * @name Konva.Context#createLinearGradient
    */
-  createLinearGradient(a0, a1, a2, a3) {
+  createLinearGradient(a0: number, a1: number, a2: number, a3: number) {
     return this._context.createLinearGradient(a0, a1, a2, a3);
   }
   /**
@@ -386,7 +401,7 @@ export class Context {
    * @method
    * @name Konva.Context#createPattern
    */
-  createPattern(a0, a1) {
+  createPattern(a0: CanvasImageSource, a1: string | null) {
     return this._context.createPattern(a0, a1);
   }
   /**
@@ -394,7 +409,14 @@ export class Context {
    * @method
    * @name Konva.Context#createRadialGradient
    */
-  createRadialGradient(a0, a1, a2, a3, a4, a5) {
+  createRadialGradient(
+    a0: number,
+    a1: number,
+    a2: number,
+    a3: number,
+    a4: number,
+    a5: number
+  ) {
     return this._context.createRadialGradient(a0, a1, a2, a3, a4, a5);
   }
   /**
@@ -446,8 +468,16 @@ export class Context {
    * @method
    * @name Konva.Context#isPointInPath
    */
-  isPointInPath(x, y) {
-    return this._context.isPointInPath(x, y);
+  isPointInPath(
+    x: number,
+    y: number,
+    path?: Path2D,
+    fillRule?: CanvasFillRule
+  ) {
+    if (path) {
+      return this._context.isPointInPath(path, x, y, fillRule);
+    }
+    return this._context.isPointInPath(x, y, fillRule);
   }
   /**
    * fill function.
@@ -466,7 +496,7 @@ export class Context {
    * @method
    * @name Konva.Context#fillRect
    */
-  fillRect(x, y, width, height) {
+  fillRect(x: number, y: number, width: number, height: number) {
     this._context.fillRect(x, y, width, height);
   }
   /**
@@ -474,7 +504,7 @@ export class Context {
    * @method
    * @name Konva.Context#strokeRect
    */
-  strokeRect(x, y, width, height) {
+  strokeRect(x: number, y: number, width: number, height: number) {
     this._context.strokeRect(x, y, width, height);
   }
   /**
@@ -494,7 +524,7 @@ export class Context {
    * @method
    * @name Konva.Context#measureText
    */
-  measureText(text) {
+  measureText(text: string) {
     return this._context.measureText(text);
   }
   /**
@@ -502,7 +532,7 @@ export class Context {
    * @method
    * @name Konva.Context#getImageData
    */
-  getImageData(a0, a1, a2, a3) {
+  getImageData(a0: number, a1: number, a2: number, a3: number) {
     return this._context.getImageData(a0, a1, a2, a3);
   }
   /**
@@ -510,7 +540,7 @@ export class Context {
    * @method
    * @name Konva.Context#lineTo
    */
-  lineTo(a0, a1) {
+  lineTo(a0: number, a1: number) {
     this._context.lineTo(a0, a1);
   }
   /**
@@ -518,7 +548,7 @@ export class Context {
    * @method
    * @name Konva.Context#moveTo
    */
-  moveTo(a0, a1) {
+  moveTo(a0: number, a1: number) {
     this._context.moveTo(a0, a1);
   }
   /**
@@ -526,7 +556,7 @@ export class Context {
    * @method
    * @name Konva.Context#rect
    */
-  rect(a0, a1, a2, a3) {
+  rect(a0: number, a1: number, a2: number, a3: number) {
     this._context.rect(a0, a1, a2, a3);
   }
   /**
@@ -534,7 +564,7 @@ export class Context {
    * @method
    * @name Konva.Context#putImageData
    */
-  putImageData(a0, a1, a2) {
+  putImageData(a0: ImageData, a1: number, a2: number) {
     this._context.putImageData(a0, a1, a2);
   }
   /**
@@ -542,7 +572,7 @@ export class Context {
    * @method
    * @name Konva.Context#quadraticCurveTo
    */
-  quadraticCurveTo(a0, a1, a2, a3) {
+  quadraticCurveTo(a0: number, a1: number, a2: number, a3: number) {
     this._context.quadraticCurveTo(a0, a1, a2, a3);
   }
   /**
@@ -558,7 +588,7 @@ export class Context {
    * @method
    * @name Konva.Context#rotate
    */
-  rotate(a0) {
+  rotate(a0: number) {
     this._context.rotate(a0);
   }
   /**
@@ -574,7 +604,7 @@ export class Context {
    * @method
    * @name Konva.Context#scale
    */
-  scale(a0, a1) {
+  scale(a0: number, a1: number) {
     this._context.scale(a0, a1);
   }
   /**
@@ -582,7 +612,7 @@ export class Context {
    * @method
    * @name Konva.Context#setLineDash
    */
-  setLineDash(a0) {
+  setLineDash(a0: number[]) {
     // works for Chrome and IE11
     if (this._context.setLineDash) {
       this._context.setLineDash(a0);
@@ -609,7 +639,14 @@ export class Context {
    * @method
    * @name Konva.Context#setTransform
    */
-  setTransform(a0, a1, a2, a3, a4, a5) {
+  setTransform(
+    a0: number,
+    a1: number,
+    a2: number,
+    a3: number,
+    a4: number,
+    a5: number
+  ) {
     this._context.setTransform(a0, a1, a2, a3, a4, a5);
   }
   /**
@@ -629,7 +666,7 @@ export class Context {
    * @method
    * @name Konva.Context#strokeText
    */
-  strokeText(a0, a1, a2, a3) {
+  strokeText(a0: string, a1: number, a2: number, a3: number) {
     this._context.strokeText(a0, a1, a2, a3);
   }
   /**
@@ -637,7 +674,14 @@ export class Context {
    * @method
    * @name Konva.Context#transform
    */
-  transform(a0, a1, a2, a3, a4, a5) {
+  transform(
+    a0: number,
+    a1: number,
+    a2: number,
+    a3: number,
+    a4: number,
+    a5: number
+  ) {
     this._context.transform(a0, a1, a2, a3, a4, a5);
   }
   /**
@@ -645,7 +689,7 @@ export class Context {
    * @method
    * @name Konva.Context#translate
    */
-  translate(a0, a1) {
+  translate(a0: number, a1: number) {
     this._context.translate(a0, a1);
   }
   _enableTrace() {
@@ -705,9 +749,12 @@ export class Context {
 }
 
 // supported context properties
-type CanvasContextProps = Pick<CanvasRenderingContext2D, typeof CONTEXT_PROPERTIES[number]>;
+type CanvasContextProps = Pick<
+  CanvasRenderingContext2D,
+  typeof CONTEXT_PROPERTIES[number]
+>;
 
-export interface Context extends CanvasContextProps {};
+export interface Context extends CanvasContextProps {}
 
 CONTEXT_PROPERTIES.forEach(function (prop) {
   Object.defineProperty(Context.prototype, prop, {
