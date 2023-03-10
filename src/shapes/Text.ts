@@ -20,6 +20,22 @@ export function stringToArray(string: string) {
   return Array.from(string);
 }
 
+export interface TextStyle {
+  start: number // start position of the style
+  end?: number // end position of the style, if undefined it means until the end
+  fontSize: number;
+  fontFamily: string;
+  //fontStyle: string;
+  //fontVariant: string;
+  fontStyle: 'normal' | 'italic' | 'bold' | 'italic bold' | 'bold italic'
+  //fontVariant: 'normal' | 'small-caps'
+  //textDecoration: '' | 'underline' | 'line-through' | 'underline line-through'
+  fill: string;
+  stroke: string;
+  deltaX: number;
+  deltaY: number;
+}
+
 export interface TextConfig extends ShapeConfig {
   text?: string;
   fontFamily?: string;
@@ -34,6 +50,7 @@ export interface TextConfig extends ShapeConfig {
   letterSpacing?: number;
   wrap?: string;
   ellipsis?: boolean;
+  styles?: TextStyle[];
 }
 
 // constants
@@ -73,6 +90,7 @@ var AUTO = 'auto',
     'wrap',
     'ellipsis',
     'letterSpacing',
+    'styles'
   ],
   // cached variables
   attrChangeListLen = ATTR_CHANGE_LIST.length;
@@ -140,6 +158,7 @@ function checkDefaultFill(config) {
  * @param {Number} [config.lineHeight] default is 1
  * @param {String} [config.wrap] can be "word", "char", or "none". Default is word
  * @param {Boolean} [config.ellipsis] can be true or false. Default is false. if Konva.Text config is set to wrap="none" and ellipsis=true, then it will add "..." to the end
+ * @param {TextStyle[]} [config.styles] can be "word", "char", or "none". Default is word
  * @@shapeParams
  * @@nodeParams
  * @example
@@ -212,6 +231,7 @@ export class Text extends Shape<TextConfig> {
 
     context.translate(padding, alignY + padding);
 
+    var cindex = 0;
     // draw text lines
     for (n = 0; n < textArrLen; n++) {
       var lineTranslateX = 0;
@@ -278,10 +298,12 @@ export class Text extends Shape<TextConfig> {
         context.stroke();
         context.restore();
       }
-      if (letterSpacing !== 0 || align === JUSTIFY) {
+
+      var array = stringToArray(text);
+      if (letterSpacing !== 0 || align === JUSTIFY || this._styleIsNotEmpty(cindex, cindex + array.length)) {
         //   var words = text.split(' ');
         spacesNumber = text.split(' ').length - 1;
-        var array = stringToArray(text);
+
         for (var li = 0; li < array.length; li++) {
           var letter = array[li];
           // skip justify for the last line
@@ -292,13 +314,32 @@ export class Text extends Shape<TextConfig> {
             //   0
             // );
           }
-          this._partialTextX = lineTranslateX;
-          this._partialTextY = translateY + lineTranslateY;
           this._partialText = letter;
-          context.fillStrokeShape(this);
-          lineTranslateX += this.measureSize(letter).width + letterSpacing;
+
+          var sty = this._getStyleDeclaration(cindex++);
+          if (!!sty) {
+
+            var fontStyle = this._getStyleValueOfProperty(sty, "fontStyle", true);
+            var fontVariant = this._getStyleValueOfProperty(sty, "fontVariant", true);
+            var fontSize1 = this._getStyleValueOfProperty(sty, "fontSize", true);
+            var fontFamily = this._getStyleValueOfProperty(sty, "fontFamily", true);
+
+            context.setAttr('font', this._getContextFont2(fontStyle, fontVariant, fontSize1, fontFamily));
+            var deltaY = this._getStyleValueOfProperty(sty, "", false)
+            this._partialTextX = lineTranslateX;
+            this._partialTextY = translateY + lineTranslateY + deltaY ?? 0;
+            context.fillStrokeShape(this);
+            lineTranslateX += this._measureSize2(letter, fontStyle, fontVariant, fontSize1, fontFamily).width;
+          } else {
+            this._partialTextX = lineTranslateX;
+            this._partialTextY = translateY + lineTranslateY;
+            context.fillStrokeShape(this);
+            lineTranslateX += this.measureSize(letter).width;
+          }
+
         }
       } else {
+        array.length = 0;
         this._partialTextX = lineTranslateX;
         this._partialTextY = translateY + lineTranslateY;
         this._partialText = text;
@@ -324,8 +365,8 @@ export class Text extends Shape<TextConfig> {
     var str = Util._isString(text)
       ? text
       : text === null || text === undefined
-      ? ''
-      : text + '';
+        ? ''
+        : text + '';
     this._setAttr(TEXT, str);
     return this;
   }
@@ -337,7 +378,7 @@ export class Text extends Shape<TextConfig> {
     var isAuto = this.attrs.height === AUTO || this.attrs.height === undefined;
     return isAuto
       ? this.fontSize() * this.textArr.length * this.lineHeight() +
-          this.padding() * 2
+      this.padding() * 2
       : this.attrs.height;
   }
   /**
@@ -379,6 +420,20 @@ export class Text extends Shape<TextConfig> {
       height: fontSize,
     };
   }
+  _measureSize2(text, fontStyle, fontVariant, fontSize, fontFamily) {
+    var _context = getDummyContext(),
+      metrics;
+
+    _context.save();
+    _context.font = this._getContextFont2(fontStyle, fontVariant, fontSize, fontFamily);
+
+    metrics = _context.measureText(text);
+    _context.restore();
+    return {
+      width: metrics.width,
+      height: fontSize,
+    };
+  }
   _getContextFont() {
     return (
       this.fontStyle() +
@@ -390,6 +445,47 @@ export class Text extends Shape<TextConfig> {
       normalizeFontFamily(this.fontFamily())
     );
   }
+  _getContextFont2(fontStyle, fontVariant, fontSize, fontFamily) {
+    return (
+      fontStyle +
+      SPACE +
+      fontVariant +
+      SPACE +
+      (fontSize + PX_SPACE) +
+      // wrap font family into " so font families with spaces works ok
+      normalizeFontFamily(fontFamily)
+    );
+  }
+  _getStyleValueOfProperty(textStyle: TextStyle, property: string, def?: boolean) {
+    if (typeof textStyle[property] !== 'undefined') {
+      return textStyle[property];
+    }
+    if (def != false)
+      return this.getAttr(property);
+    else
+      return null;
+  }
+  _getStyleDeclaration(index: number) {
+    var stys = this.styles();
+
+    var ts = null;
+    if (!!stys) {
+      ts = stys.find(o => index >= o.start && (!o.end || index <= o.end));
+    }
+
+    return ts;
+  }
+  _styleIsNotEmpty(start: number, end: number) {
+    var stys = this.styles();
+
+    var ts = null;
+    if (!!stys) {
+      ts = stys.find(o => o.start >= start && o.start <= end);
+    }
+
+    return !!ts;
+  }
+
   _addTextLine(line) {
     const align = this.align();
     if (align === JUSTIFY) {
@@ -600,6 +696,9 @@ export class Text extends Shape<TextConfig> {
     return true;
   }
 
+
+
+
   fontFamily: GetSet<string, this>;
   fontSize: GetSet<number, this>;
   fontStyle: GetSet<string, this>;
@@ -613,6 +712,7 @@ export class Text extends Shape<TextConfig> {
   text: GetSet<string, this>;
   wrap: GetSet<string, this>;
   ellipsis: GetSet<boolean, this>;
+  styles: GetSet<TextStyle[], this>;
 }
 
 Text.prototype._fillFunc = _fillFunc;
@@ -878,3 +978,27 @@ Factory.addGetterSetter(Text, 'text', '', getStringValidator());
  */
 
 Factory.addGetterSetter(Text, 'textDecoration', '');
+
+/**
+ * get/set text styles of a text.  
+ * @name Konva.Text#textDecoration
+ * @method
+ * @param {TextStyle} styles
+ * @returns {String}
+ * @example
+ * // set styles
+ * text.styles([{ start: 0, fontFamily: 'Roboto' }]);
+ */
+const defaultStyle: TextStyle = {
+  start: 0,
+  fill: 'black',
+  stroke: 'black',
+  fontFamily: 'Arial',
+  fontSize: 12,
+  fontStyle: 'normal',
+  //fontVariant: 'normal',
+  //textDecoration: '',
+  deltaX: 0,
+  deltaY: 0,
+}
+Factory.addGetterSetter(Text, 'styles', null);
