@@ -361,7 +361,7 @@ export class Context {
    * @method
    * @name Konva.Context#clip
    */
-  clip(path2d) {
+  clip(path2d?: Path2D) {
     if (path2d)
       this._context.clip(path2d);
     else
@@ -754,7 +754,7 @@ type CanvasContextProps = Pick<
   typeof CONTEXT_PROPERTIES[number]
 >;
 
-export interface Context extends CanvasContextProps {}
+export interface Context extends CanvasContextProps { }
 
 CONTEXT_PROPERTIES.forEach(function (prop) {
   Object.defineProperty(Context.prototype, prop, {
@@ -901,14 +901,14 @@ export class SceneContext extends Context {
       scaleY = scale.y * ratio;
 
     this.setAttr('shadowColor', color);
-    this.setAttr(
-      'shadowBlur',
-      blur * Math.min(Math.abs(scaleX), Math.abs(scaleY))
-    );
+    this.setAttr( 'shadowBlur',  blur * Math.min(Math.abs(scaleX), Math.abs(scaleY)) );
     this.setAttr('shadowOffsetX', offset.x * scaleX);
     this.setAttr('shadowOffsetY', offset.y * scaleY);
   }
+
+
 }
+
 
 export class HitContext extends Context {
   constructor(canvas: Canvas) {

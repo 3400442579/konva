@@ -25,6 +25,14 @@ export type ShapeConfigHandler<TTarget> = {
 export type LineJoin = 'round' | 'bevel' | 'miter';
 export type LineCap = 'butt' | 'round' | 'square';
 
+export interface Shadow {
+  color?: string;
+  blur?: number;
+  offsetX?: number;
+  offsetY?: number;
+  opacity?: number;
+}
+
 export interface ShapeConfig extends NodeConfig {
   fill?: string;
   fillPatternImage?: HTMLImageElement;
@@ -79,6 +87,7 @@ export interface ShapeConfig extends NodeConfig {
   dashOffset?: number;
   dashEnabled?: boolean;
   perfectDrawEnabled?: boolean;
+  shadows?: Shadow[];
 }
 
 export interface ShapeGetClientRectConfig {
@@ -142,6 +151,20 @@ function _clearLinearGradientCache() {
 
 function _clearRadialGradientCache() {
   this._clearCache(radialGradient);
+}
+
+function _parseShadow(shadow: string) {
+  var reOffsetsAndBlur = /(?:\s|^)(-?\d+(?:\.\d*)?(?:px)?(?:\s?|$))?(-?\d+(?:\.\d*)?(?:px)?(?:\s?|$))?(\d+(?:\.\d*)?(?:px)?)?(?:\s?|$)(?:$|\s)/;
+  var shadowStr = shadow.trim(),
+    offsetsAndBlur = reOffsetsAndBlur.exec(shadowStr) || [],
+    color = shadowStr.replace(reOffsetsAndBlur, '') || 'rgb(0,0,0)';
+
+  return {
+    color: color.trim(),
+    offsetX: parseFloat(offsetsAndBlur[1]) || 0,
+    offsetY: parseFloat(offsetsAndBlur[2]) || 0,
+    blur: parseFloat(offsetsAndBlur[3]) || 0,
+  };
 }
 
 /**
@@ -225,15 +248,14 @@ export class Shape<
   _hasShadow() {
     return (
       this.shadowEnabled() &&
-      this.shadowOpacity() !== 0 &&
-      !!(
-        this.shadowColor() ||
-        this.shadowBlur() ||
-        this.shadowOffsetX() ||
-        this.shadowOffsetY()
+      (
+        (this.shadowOpacity() !== 0 && !!(this.shadowColor() || this.shadowBlur() || this.shadowOffsetX() || this.shadowOffsetY()))
+        ||
+        (!!this.shadows && this.shadows.length > 0)
       )
     );
   }
+
   _getFillPattern() {
     return this._getCache(patternImage, this.__getFillPattern);
   }
@@ -260,13 +282,13 @@ export class Shape<
         const matrix =
           typeof DOMMatrix === 'undefined'
             ? {
-                a: m[0], // Horizontal scaling. A value of 1 results in no scaling.
-                b: m[1], // Vertical skewing.
-                c: m[2], // Horizontal skewing.
-                d: m[3],
-                e: m[4], // Horizontal translation (moving).
-                f: m[5], // Vertical translation (moving).
-              }
+              a: m[0], // Horizontal scaling. A value of 1 results in no scaling.
+              b: m[1], // Vertical skewing.
+              c: m[2], // Horizontal skewing.
+              d: m[3],
+              e: m[4], // Horizontal translation (moving).
+              f: m[5], // Vertical translation (moving).
+            }
             : new DOMMatrix(m);
 
         pattern.setTransform(matrix);
@@ -597,6 +619,13 @@ export class Shape<
       return this;
     }
 
+    var tempOpacity = -1;
+    var shadows = this.shadows();
+    if (!!shadows && shadows.length > 1) {
+      tempOpacity = this.getAbsoluteOpacity() / shadows.length;
+    }
+
+
     context.save();
     // if buffer canvas is needed
     if (this._useBufferCanvas() && !skipBuffer) {
@@ -615,18 +644,52 @@ export class Shape<
 
       var ratio = bufferCanvas.pixelRatio;
 
-      if (hasShadow) {
-        context._applyShadow(this);
-      }
       context._applyOpacity(this);
       context._applyGlobalCompositeOperation(this);
-      context.drawImage(
-        bufferCanvas._canvas,
-        0,
-        0,
-        bufferCanvas.width / ratio,
-        bufferCanvas.height / ratio
-      );
+      if (!!shadows) {
+        shadows.forEach(sh => {
+          context.save();
+
+          var color = sh.color ?? 'black',
+            blur = sh.blur ?? 5,
+            offset = {
+              x: sh.offsetX ?? 0,
+              y: sh.offsetY ?? 0,
+            },
+            scale = this.getAbsoluteScale(),
+            ratio = context.canvas.getPixelRatio(),
+            scaleX = scale.x * ratio,
+            scaleY = scale.y * ratio;
+
+          context.setAttr('shadowColor', color);
+          context.setAttr('shadowBlur', blur * Math.min(Math.abs(scaleX), Math.abs(scaleY)));
+          context.setAttr('shadowOffsetX', offset.x * scaleX);
+          context.setAttr('shadowOffsetY', offset.y * scaleY);
+
+          context.drawImage(
+            bufferCanvas._canvas,
+            0,
+            0,
+            bufferCanvas.width / ratio,
+            bufferCanvas.height / ratio
+          );
+          context.restore();
+        });
+
+      }
+      else {
+        if (hasShadow) {
+          context._applyShadow(this);
+        }
+        context.drawImage(
+          bufferCanvas._canvas,
+          0,
+          0,
+          bufferCanvas.width / ratio,
+          bufferCanvas.height / ratio
+        );
+      }
+
     } else {
       context._applyLineJoin(this);
 
@@ -637,11 +700,35 @@ export class Shape<
         context._applyGlobalCompositeOperation(this);
       }
 
-      if (hasShadow) {
-        context._applyShadow(this);
+      if (!!shadows) {
+        shadows.forEach(sh => {
+          context.save();
+          var color = sh.color ?? 'black',
+            blur = sh.blur ?? 5,
+            offset = {
+              x: sh.offsetX ?? 0,
+              y: sh.offsetY ?? 0,
+            },
+            scale = this.getAbsoluteScale(),
+            ratio = context.canvas.getPixelRatio(),
+            scaleX = scale.x * ratio,
+            scaleY = scale.y * ratio;
+
+          context.setAttr('shadowColor', color);
+          context.setAttr('shadowBlur', blur * Math.min(Math.abs(scaleX), Math.abs(scaleY)));
+          context.setAttr('shadowOffsetX', offset.x * scaleX);
+          context.setAttr('shadowOffsetY', offset.y * scaleY);
+          drawFunc.call(this, context, this);
+          context.restore();
+        });
+      }
+      else {
+        if (hasShadow) {
+          context._applyShadow(this);
+        }
+        drawFunc.call(this, context, this);
       }
 
-      drawFunc.call(this, context, this);
     }
     context.restore();
     return this;
@@ -821,6 +908,7 @@ export class Shape<
   strokeWidth: GetSet<number, this>;
   hitStrokeWidth: GetSet<number | 'auto', this>;
   strokeLinearGradientColorStops: GetSet<Array<number | string>, this>;
+  shadows: GetSet<Shadow[], this>;
 }
 
 Shape.prototype._fillFunc = _fillFunc;
@@ -835,13 +923,13 @@ _registerNode(Shape);
 Shape.prototype.eventListeners = {};
 Shape.prototype.on.call(
   Shape.prototype,
-  'shadowColorChange.konva shadowBlurChange.konva shadowOffsetChange.konva shadowOpacityChange.konva shadowEnabledChange.konva',
+  'shadowColorChange.konva shadowBlurChange.konva shadowOffsetChange.konva shadowOpacityChange.konva shadowEnabledChange.konva shadowsChange.konva',
   _clearHasShadowCache
 );
 
 Shape.prototype.on.call(
   Shape.prototype,
-  'shadowColorChange.konva shadowOpacityChange.konva shadowEnabledChange.konva',
+  'shadowColorChange.konva shadowOpacityChange.konva shadowEnabledChange.konva shadowsChange.konva',
   _clearGetShadowRGBACache
 );
 
@@ -1971,6 +2059,8 @@ Factory.addGetterSetter(Shape, 'fillRadialGradientEndPointY', 0);
 
 Factory.addGetterSetter(Shape, 'fillPatternRotation', 0);
 
+
+
 /**
  * get/set fill pattern rotation in degrees
  * @name Konva.Shape#fillPatternRotation
@@ -1998,3 +2088,19 @@ Factory.backCompat(Shape, {
   getDrawHitFunc: 'getHitFunc',
   setDrawHitFunc: 'setHitFunc',
 });
+
+
+/**
+ * get/set fill radial gradient end point y
+ * @name Konva.Shape#shadows
+ * @method
+ * @param {Shadow[]} 
+ * @returns {Shadow[]}
+ * @example
+ * // get fill radial gradient end point y
+ * var endPointY = shape.fillRadialGradientEndPointY();
+ *
+ * // set fill radial gradient end point y
+ * shape.fillRadialGradientEndPointY(20);
+ */
+Factory.addGetterSetter(Shape, 'shadows', null);
