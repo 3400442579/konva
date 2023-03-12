@@ -318,25 +318,48 @@ export class Text extends Shape<TextConfig> {
 
           var sty = this._getStyleDeclaration(cindex++);
           if (!!sty) {
+            context.save();
+            var subFontStyle = this._getStyleValueOfProperty(sty, "fontStyle", false);
+            var subFontVariant = this._getStyleValueOfProperty(sty, "fontVariant", true);
+            var subFontSize = this._getStyleValueOfProperty(sty, "fontSize", false);
+            var subFontFamily = this._getStyleValueOfProperty(sty, "fontFamily", false);
 
-            var fontStyle = this._getStyleValueOfProperty(sty, "fontStyle", true);
-            var fontVariant = this._getStyleValueOfProperty(sty, "fontVariant", true);
-            var fontSize1 = this._getStyleValueOfProperty(sty, "fontSize", true);
-            var fontFamily = this._getStyleValueOfProperty(sty, "fontFamily", true);
+            var subfill = this._getStyleValueOfProperty(sty, "fill", false);
+            var subStrokeWidth = this._getStyleValueOfProperty(sty, "strokeWidth", true);
+            var subStroke = this._getStyleValueOfProperty(sty, "stroke", false);
 
-            context.setAttr('font', this._getContextFont2(fontStyle, fontVariant, fontSize1, fontFamily));
-            var deltaY = this._getStyleValueOfProperty(sty, "", false)
+            var sub = false;
+            if (subFontStyle || subFontSize != null || subFontFamily) {
+              sub = true;
+              subFontStyle = subFontStyle ?? this.fontStyle();
+              subFontFamily = subFontFamily ?? this.fontFamily();
+              subFontSize = subFontSize ?? this.fontSize();
+              context.setAttr('font', this._getContextFont2(subFontStyle, subFontVariant, subFontSize, subFontFamily));
+            }
+            if (subfill) context.setAttr('fillStyle', subfill);
+            if (subStroke && subStrokeWidth > 0) {
+              context.setAttr('lineWidth', subStrokeWidth);
+              context.setAttr('strokeStyle', subStroke);
+              console.info("subStroke")
+            }
+            var deltaY = this._getStyleValueOfProperty(sty, "deltaY", false)
             this._partialTextX = lineTranslateX;
             this._partialTextY = translateY + lineTranslateY + deltaY ?? 0;
             context.fillStrokeShape(this);
-            lineTranslateX += this._measureSize2(letter, fontStyle, fontVariant, fontSize1, fontFamily).width;
+
+            context.restore();
+            if (sub)
+              lineTranslateX += this._measureSize2(letter, subFontStyle, subFontVariant, subFontSize, subFontFamily).width;
+            else
+              lineTranslateX += this.measureSize(letter).width;
+
           } else {
             this._partialTextX = lineTranslateX;
             this._partialTextY = translateY + lineTranslateY;
             context.fillStrokeShape(this);
             lineTranslateX += this.measureSize(letter).width;
           }
-
+          console.info("=====")
         }
       } else {
         array.length = 0;
