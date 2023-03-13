@@ -20,6 +20,7 @@ import { Text } from './shapes/Text';
 import { TextPath } from './shapes/TextPath';
 import { Transformer } from './shapes/Transformer';
 import { Wedge } from './shapes/Wedge';
+import { IText } from './shapes/IText';
 
 // filters
 import { Blur } from './filters/Blur';
@@ -61,6 +62,7 @@ export const Konva = Core.Util._assign(Core, {
   TextPath,
   Transformer,
   Wedge,
+  IText,
   /**
    * @namespace Filters
    * @memberof Konva
