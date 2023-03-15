@@ -341,7 +341,7 @@ export class IText extends Shape<ITextConfig> {
             var subFontFamily = this._getStyleValueOfProperty(sty, "fontFamily", false);
 
             var subfill = this._getStyleValueOfProperty(sty, "fill", false);
-            var subStrokeWidth = this._getStyleValueOfProperty(sty, "strokeWidth", true);
+            var subStrokeWidth = this._getStyleValueOfProperty(sty, "strokeWidth", false);
             var subStroke = this._getStyleValueOfProperty(sty, "stroke", false);
 
             var sub = false;
@@ -352,27 +352,29 @@ export class IText extends Shape<ITextConfig> {
               subFontSize = subFontSize ?? this.fontSize();
               context.setAttr('font', this._getContextFont2(subFontStyle, subFontVariant, subFontSize, subFontFamily));
             }
-            if (subfill) {
-              this.fill(subfill);
-              //context.setAttr('fillStyle', subfill);
-            }
-            if (subStroke && subStrokeWidth > 0) {
-              context.setAttr('lineWidth', subStrokeWidth);
-              context.setAttr('strokeStyle', subStroke);
-            }
+            if (subfill)
+              this.attrs.fill = subfill;
+            if (subStrokeWidth != null)
+              this.attrs.strokeWidth = subStrokeWidth;
+            if (subStroke)
+              this.attrs.stroke = subStroke;
+
             var deltaY = this._getStyleValueOfProperty(sty, "deltaY", false);
             var deltaX = this._getStyleValueOfProperty(sty, "deltaX", false)
             this._partialTextX = lineTranslateX + deltaX;
             this._partialTextY = translateY + lineTranslateY + deltaY ?? 0;
             context.fillStrokeShape(this);
-
             context.restore();
+
             if (sub)
               lineTranslateX += this._measureSize2(letter, subFontStyle, subFontVariant, subFontSize, subFontFamily).width;
             else
               lineTranslateX += this.measureSize(letter).width;
-
             lineTranslateX += deltaX;
+
+            this.attrs.stroke = stroke;
+            this.attrs.strokeWidth = strokeWidth;
+            this.attrs.fill = fill;
           } else {
             this._partialTextX = lineTranslateX;
             this._partialTextY = translateY + lineTranslateY;
@@ -395,11 +397,6 @@ export class IText extends Shape<ITextConfig> {
         translateY += lineHeightPx;
       }
     }
-
-
-    //this.stroke(stroke),
-    //  this.strokeWidth(strokeWidth),
-    //  this.fill(fill);
   }
 
   _hitFunc(context) {

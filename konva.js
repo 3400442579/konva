@@ -8,7 +8,7 @@
    * Konva JavaScript Framework v8.4.2
    * http://konvajs.org/
    * Licensed under the MIT
-   * Date: Mon Mar 13 2023
+   * Date: Wed Mar 15 2023
    *
    * Original work Copyright (C) 2011 - 2013 by Eric Rowell (KineticJS)
    * Modified work Copyright (C) 2014 - present by Anton Lavrenov (Konva)
@@ -2499,7 +2499,7 @@
   }
 
   // CONSTANTS
-  var ABSOLUTE_OPACITY = 'absoluteOpacity', ALL_LISTENERS = 'allEventListeners', ABSOLUTE_TRANSFORM = 'absoluteTransform', ABSOLUTE_SCALE = 'absoluteScale', CANVAS = 'canvas', CHANGE = 'Change', CHILDREN = 'children', KONVA = 'konva', LISTENING = 'listening', MOUSEENTER$1 = 'mouseenter', MOUSELEAVE$1 = 'mouseleave', SET = 'set', SHAPE = 'Shape', SPACE$2 = ' ', STAGE$1 = 'stage', TRANSFORM = 'transform', UPPER_STAGE = 'Stage', VISIBLE = 'visible', TRANSFORM_CHANGE_STR$1 = [
+  var ABSOLUTE_OPACITY = 'absoluteOpacity', ALL_LISTENERS = 'allEventListeners', ABSOLUTE_TRANSFORM = 'absoluteTransform', ABSOLUTE_SCALE = 'absoluteScale', CANVAS = 'canvas', CHANGE = 'Change', CHILDREN = 'children', KONVA = 'konva', LISTENING = 'listening', MOUSEENTER$1 = 'mouseenter', MOUSELEAVE$1 = 'mouseleave', SET = 'set', SHAPE = 'Shape', SPACE$1 = ' ', STAGE$1 = 'stage', TRANSFORM = 'transform', UPPER_STAGE = 'Stage', VISIBLE = 'visible', TRANSFORM_CHANGE_STR$1 = [
       'xChange.konva',
       'yChange.konva',
       'scaleXChange.konva',
@@ -2510,7 +2510,7 @@
       'offsetXChange.konva',
       'offsetYChange.konva',
       'transformsEnabledChange.konva',
-  ].join(SPACE$2);
+  ].join(SPACE$1);
   let idCounter$1 = 1;
   /**
    * Node constructor. Nodes are entities that can be transformed, layered,
@@ -2598,7 +2598,7 @@
           // if we are trying to calculate function for the first time
           // we need to attach listeners for change events
           if (!this._attachedDepsListeners.get(name)) {
-              const depsString = deps.map((dep) => dep + 'Change.konva').join(SPACE$2);
+              const depsString = deps.map((dep) => dep + 'Change.konva').join(SPACE$1);
               this.on(depsString, () => {
                   this._clearCache(name);
               });
@@ -2970,7 +2970,7 @@
           if (arguments.length === 3) {
               return this._delegate.apply(this, arguments);
           }
-          var events = evtStr.split(SPACE$2), len = events.length, n, event, parts, baseEvent, name;
+          var events = evtStr.split(SPACE$1), len = events.length, n, event, parts, baseEvent, name;
           /*
            * loop through types and attach event listeners to
            * each one.  eg. 'click mouseover.namespace mouseout'
@@ -3014,7 +3014,7 @@
        * node.off('click.foo');
        */
       off(evtStr, callback) {
-          var events = (evtStr || '').split(SPACE$2), len = events.length, n, t, event, parts, baseEvent, name;
+          var events = (evtStr || '').split(SPACE$1), len = events.length, n, t, event, parts, baseEvent, name;
           this._cache && this._cache.delete(ALL_LISTENERS);
           if (!evtStr) {
               // remove all events
@@ -6682,13 +6682,13 @@
   var patternImage = 'patternImage';
   var linearGradient = 'linearGradient';
   var radialGradient = 'radialGradient';
-  let dummyContext$2;
-  function getDummyContext$2() {
-      if (dummyContext$2) {
-          return dummyContext$2;
+  let dummyContext$1;
+  function getDummyContext$1() {
+      if (dummyContext$1) {
+          return dummyContext$1;
       }
-      dummyContext$2 = Util.createCanvasElement().getContext('2d');
-      return dummyContext$2;
+      dummyContext$1 = Util.createCanvasElement().getContext('2d');
+      return dummyContext$1;
   }
   const shapes = {};
   // TODO: idea - use only "remove" (or destroy method)
@@ -6696,10 +6696,10 @@
   // on remove - clear that reference
   // the approach is good. But what if we want to cache the shape before we add it into the stage
   // what color to use for hit test?
-  function _fillFunc$3(context) {
+  function _fillFunc$2(context) {
       context.fill();
   }
-  function _strokeFunc$3(context) {
+  function _strokeFunc$2(context) {
       context.stroke();
   }
   function _fillFuncHit(context) {
@@ -6869,7 +6869,7 @@
       }
       __getFillPattern() {
           if (this.fillPatternImage()) {
-              var ctx = getDummyContext$2();
+              var ctx = getDummyContext$1();
               const pattern = ctx.createPattern(this.fillPatternImage(), this.fillPatternRepeat() || 'repeat');
               if (pattern && pattern.setTransform) {
                   const tr = new Transform();
@@ -6899,7 +6899,7 @@
       __getLinearGradient() {
           var colorStops = this.fillLinearGradientColorStops();
           if (colorStops) {
-              var ctx = getDummyContext$2();
+              var ctx = getDummyContext$1();
               var start = this.fillLinearGradientStartPoint();
               var end = this.fillLinearGradientEndPoint();
               var grd = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
@@ -6916,7 +6916,7 @@
       __getRadialGradient() {
           var colorStops = this.fillRadialGradientColorStops();
           if (colorStops) {
-              var ctx = getDummyContext$2();
+              var ctx = getDummyContext$1();
               var start = this.fillRadialGradientStartPoint();
               var end = this.fillRadialGradientEndPoint();
               var grd = ctx.createRadialGradient(start.x, start.y, this.fillRadialGradientStartRadius(), end.x, end.y, this.fillRadialGradientEndRadius());
@@ -7310,8 +7310,8 @@
           releaseCapture(pointerId);
       }
   }
-  Shape.prototype._fillFunc = _fillFunc$3;
-  Shape.prototype._strokeFunc = _strokeFunc$3;
+  Shape.prototype._fillFunc = _fillFunc$2;
+  Shape.prototype._strokeFunc = _strokeFunc$2;
   Shape.prototype._fillFuncHit = _fillFuncHit;
   Shape.prototype._strokeFuncHit = _strokeFuncHit;
   Shape.prototype._centroid = false;
@@ -12056,7 +12056,7 @@
    */
 
   // constants
-  var ATTR_CHANGE_LIST$3 = [
+  var ATTR_CHANGE_LIST$2 = [
       'fontFamily',
       'fontSize',
       'fontStyle',
@@ -12068,9 +12068,9 @@
       'pointerDirection',
       'pointerWidth',
       'pointerHeight',
-  ], CHANGE_KONVA$2 = 'Change.konva', NONE$2 = 'none', UP = 'up', RIGHT$2 = 'right', DOWN = 'down', LEFT$2 = 'left', 
+  ], CHANGE_KONVA$1 = 'Change.konva', NONE$1 = 'none', UP = 'up', RIGHT$1 = 'right', DOWN = 'down', LEFT$1 = 'left', 
   // cached variables
-  attrChangeListLen$2 = ATTR_CHANGE_LIST$3.length;
+  attrChangeListLen$1 = ATTR_CHANGE_LIST$2.length;
   /**
    * Label constructor.&nbsp; Labels are groups that contain a Text and Tag shape
    * @constructor
@@ -12162,8 +12162,8 @@
               that._sync();
           };
           // update text data for certain attr changes
-          for (n = 0; n < attrChangeListLen$2; n++) {
-              text.on(ATTR_CHANGE_LIST$3[n] + CHANGE_KONVA$2, func);
+          for (n = 0; n < attrChangeListLen$1; n++) {
+              text.on(ATTR_CHANGE_LIST$2[n] + CHANGE_KONVA$1, func);
           }
       }
       getWidth() {
@@ -12187,7 +12187,7 @@
                       x = width / 2;
                       y = -1 * pointerHeight;
                       break;
-                  case RIGHT$2:
+                  case RIGHT$1:
                       x = width + pointerWidth;
                       y = height / 2;
                       break;
@@ -12195,7 +12195,7 @@
                       x = width / 2;
                       y = height + pointerHeight;
                       break;
-                  case LEFT$2:
+                  case LEFT$1:
                       x = -1 * pointerWidth;
                       y = height / 2;
                       break;
@@ -12256,7 +12256,7 @@
           }
           context.lineTo(width - topRight, 0);
           context.arc(width - topRight, topRight, topRight, (Math.PI * 3) / 2, 0, false);
-          if (pointerDirection === RIGHT$2) {
+          if (pointerDirection === RIGHT$1) {
               context.lineTo(width, (height - pointerHeight) / 2);
               context.lineTo(width + pointerWidth, height / 2);
               context.lineTo(width, (height + pointerHeight) / 2);
@@ -12270,7 +12270,7 @@
           }
           context.lineTo(bottomLeft, height);
           context.arc(bottomLeft, height - bottomLeft, bottomLeft, Math.PI / 2, Math.PI, false);
-          if (pointerDirection === LEFT$2) {
+          if (pointerDirection === LEFT$1) {
               context.lineTo(0, (height + pointerHeight) / 2);
               context.lineTo(-1 * pointerWidth, height / 2);
               context.lineTo(0, (height - pointerHeight) / 2);
@@ -12289,12 +12289,12 @@
           else if (direction === DOWN) {
               height += pointerHeight;
           }
-          else if (direction === LEFT$2) {
+          else if (direction === LEFT$1) {
               // ARGH!!! I have no idea why should I used magic 1.5!!!!!!!!!
               x -= pointerWidth * 1.5;
               width += pointerWidth;
           }
-          else if (direction === RIGHT$2) {
+          else if (direction === RIGHT$1) {
               width += pointerWidth * 1.5;
           }
           return {
@@ -12316,7 +12316,7 @@
    * @example
    * tag.pointerDirection('right');
    */
-  Factory.addGetterSetter(Tag, 'pointerDirection', NONE$2);
+  Factory.addGetterSetter(Tag, 'pointerDirection', NONE$1);
   /**
    * get/set pointer width
    * @name Konva.Tag#pointerWidth
@@ -13342,7 +13342,7 @@
    */
   Factory.addGetterSetter(Star, 'outerRadius', 0, getNumberValidator());
 
-  function stringToArray$1(string) {
+  function stringToArray(string) {
       // we need to use `Array.from` because it can split unicode string correctly
       // we also can use some regexp magic from lodash:
       // https://github.com/lodash/lodash/blob/fb1f99d9d90ad177560d771bc5953a435b2dc119/lodash.toarray/index.js#L256
@@ -13350,9 +13350,9 @@
       return Array.from(string);
   }
   // constants
-  var AUTO$1 = 'auto', 
+  var AUTO = 'auto', 
   //CANVAS = 'canvas',
-  CENTER$1 = 'center', JUSTIFY$1 = 'justify', CHANGE_KONVA$1 = 'Change.konva', CONTEXT_2D$1 = '2d', DASH$1 = '-', LEFT$1 = 'left', TEXT$1 = 'text', TEXT_UPPER$1 = 'Text', TOP$1 = 'top', BOTTOM$1 = 'bottom', MIDDLE$1 = 'middle', NORMAL$2 = 'normal', PX_SPACE$1 = 'px ', SPACE$1 = ' ', RIGHT$1 = 'right', WORD$1 = 'word', CHAR$1 = 'char', NONE$1 = 'none', ELLIPSIS$1 = '…', ATTR_CHANGE_LIST$2 = [
+  CENTER = 'center', JUSTIFY = 'justify', CHANGE_KONVA = 'Change.konva', CONTEXT_2D = '2d', DASH = '-', LEFT = 'left', TEXT = 'text', TEXT_UPPER = 'Text', TOP = 'top', BOTTOM = 'bottom', MIDDLE = 'middle', NORMAL$1 = 'normal', PX_SPACE = 'px ', SPACE = ' ', RIGHT = 'right', WORD = 'word', CHAR = 'char', NONE = 'none', ELLIPSIS = '…', ATTR_CHANGE_LIST$1 = [
       'fontFamily',
       'fontSize',
       'fontStyle',
@@ -13370,8 +13370,8 @@
       'styles'
   ], 
   // cached variables
-  attrChangeListLen$1 = ATTR_CHANGE_LIST$2.length;
-  function normalizeFontFamily$1(fontFamily) {
+  attrChangeListLen = ATTR_CHANGE_LIST$1.length;
+  function normalizeFontFamily(fontFamily) {
       return fontFamily
           .split(',')
           .map((family) => {
@@ -13385,21 +13385,21 @@
       })
           .join(', ');
   }
-  var dummyContext$1;
-  function getDummyContext$1() {
-      if (dummyContext$1) {
-          return dummyContext$1;
+  var dummyContext;
+  function getDummyContext() {
+      if (dummyContext) {
+          return dummyContext;
       }
-      dummyContext$1 = Util.createCanvasElement().getContext(CONTEXT_2D$1);
-      return dummyContext$1;
+      dummyContext = Util.createCanvasElement().getContext(CONTEXT_2D);
+      return dummyContext;
   }
-  function _fillFunc$2(context) {
+  function _fillFunc$1(context) {
       context.fillText(this._partialText, this._partialTextX, this._partialTextY);
   }
-  function _strokeFunc$2(context) {
+  function _strokeFunc$1(context) {
       context.strokeText(this._partialText, this._partialTextX, this._partialTextY);
   }
-  function checkDefaultFill$1(config) {
+  function checkDefaultFill(config) {
       config = config || {};
       // set default color to black
       if (!config.fillLinearGradientColorStops &&
@@ -13514,12 +13514,12 @@
    */
   class Text extends Shape {
       constructor(config) {
-          super(checkDefaultFill$1(config));
+          super(checkDefaultFill(config));
           this._partialTextX = 0;
           this._partialTextY = 0;
           // update text data for certain attr changes
-          for (var n = 0; n < attrChangeListLen$1; n++) {
-              this.on(ATTR_CHANGE_LIST$2[n] + CHANGE_KONVA$1, this._setTextData);
+          for (var n = 0; n < attrChangeListLen; n++) {
+              this.on(ATTR_CHANGE_LIST$1[n] + CHANGE_KONVA, this._setTextData);
           }
           this._setTextData();
       }
@@ -13530,18 +13530,20 @@
               return;
           }
           var padding = this.padding(), fontSize = this.fontSize(), lineHeightPx = this.lineHeight() * fontSize, verticalAlign = this.verticalAlign(), alignY = 0, align = this.align(), totalWidth = this.getWidth(), letterSpacing = this.letterSpacing(), fill = this.fill(), textDecoration = this.textDecoration(), shouldUnderline = textDecoration.indexOf('underline') !== -1, shouldLineThrough = textDecoration.indexOf('line-through') !== -1, n;
+          var stroke = this.stroke(), strokeWidth = this.strokeWidth();
+          var strokeEnabled = this.strokeEnabled();
           var translateY = 0;
           var translateY = lineHeightPx / 2;
           var lineTranslateX = 0;
           var lineTranslateY = 0;
           context.setAttr('font', this._getContextFont());
-          context.setAttr('textBaseline', MIDDLE$1);
-          context.setAttr('textAlign', LEFT$1);
+          context.setAttr('textBaseline', MIDDLE);
+          context.setAttr('textAlign', LEFT);
           // handle vertical alignment
-          if (verticalAlign === MIDDLE$1) {
+          if (verticalAlign === MIDDLE) {
               alignY = (this.getHeight() - textArrLen * lineHeightPx - padding * 2) / 2;
           }
-          else if (verticalAlign === BOTTOM$1) {
+          else if (verticalAlign === BOTTOM) {
               alignY = this.getHeight() - textArrLen * lineHeightPx - padding * 2;
           }
           context.translate(padding, alignY + padding);
@@ -13553,10 +13555,10 @@
               var obj = textArr[n], text = obj.text, width = obj.width, lastLine = obj.lastInParagraph, spacesNumber, oneWord, lineWidth;
               // horizontal alignment
               context.save();
-              if (align === RIGHT$1) {
+              if (align === RIGHT) {
                   lineTranslateX += totalWidth - width - padding * 2;
               }
-              else if (align === CENTER$1) {
+              else if (align === CENTER) {
                   lineTranslateX += (totalWidth - width - padding * 2) / 2;
               }
               if (shouldUnderline) {
@@ -13566,7 +13568,7 @@
                   spacesNumber = text.split(' ').length - 1;
                   oneWord = spacesNumber === 0;
                   lineWidth =
-                      align === JUSTIFY$1 && !lastLine ? totalWidth - padding * 2 : width;
+                      align === JUSTIFY && !lastLine ? totalWidth - padding * 2 : width;
                   context.lineTo(lineTranslateX + Math.round(lineWidth), translateY + lineTranslateY + Math.round(fontSize / 2));
                   // I have no idea what is real ratio
                   // just /15 looks good enough
@@ -13583,7 +13585,7 @@
                   spacesNumber = text.split(' ').length - 1;
                   oneWord = spacesNumber === 0;
                   lineWidth =
-                      align === JUSTIFY$1 && lastLine && !oneWord
+                      align === JUSTIFY && lastLine && !oneWord
                           ? totalWidth - padding * 2
                           : width;
                   context.lineTo(lineTranslateX + Math.round(lineWidth), translateY + lineTranslateY);
@@ -13593,14 +13595,14 @@
                   context.stroke();
                   context.restore();
               }
-              var array = stringToArray$1(text);
-              if (letterSpacing !== 0 || align === JUSTIFY$1 || this._styleIsNotEmpty(cindex, cindex + array.length)) {
+              var array = stringToArray(text);
+              if (letterSpacing !== 0 || align === JUSTIFY || this._styleIsNotEmpty(cindex, cindex + array.length)) {
                   //   var words = text.split(' ');
                   spacesNumber = text.split(' ').length - 1;
                   for (var li = 0; li < array.length; li++) {
                       var letter = array[li];
                       // skip justify for the last line
-                      if (letter === ' ' && !lastLine && align === JUSTIFY$1) {
+                      if (letter === ' ' && !lastLine && align === JUSTIFY) {
                           lineTranslateX += (totalWidth - padding * 2 - width) / spacesNumber;
                           // context.translate(
                           //   Math.floor((totalWidth - padding * 2 - width) / spacesNumber),
@@ -13616,32 +13618,49 @@
                           var subFontSize = this._getStyleValueOfProperty(sty, "fontSize", false);
                           var subFontFamily = this._getStyleValueOfProperty(sty, "fontFamily", false);
                           var subfill = this._getStyleValueOfProperty(sty, "fill", false);
-                          var subStrokeWidth = this._getStyleValueOfProperty(sty, "strokeWidth", true);
-                          var subStroke = this._getStyleValueOfProperty(sty, "stroke", false);
-                          var sub = false;
+                          var bfont = false, bstroke = false, bstrokeWidth = false, bfill = false;
                           if (subFontStyle || subFontSize != null || subFontFamily) {
-                              sub = true;
+                              bfont = true;
                               subFontStyle = subFontStyle !== null && subFontStyle !== void 0 ? subFontStyle : this.fontStyle();
                               subFontFamily = subFontFamily !== null && subFontFamily !== void 0 ? subFontFamily : this.fontFamily();
                               subFontSize = subFontSize !== null && subFontSize !== void 0 ? subFontSize : this.fontSize();
                               context.setAttr('font', this._getContextFont2(subFontStyle, subFontVariant, subFontSize, subFontFamily));
                           }
-                          if (subfill)
-                              context.setAttr('fillStyle', subfill);
-                          if (subStroke && subStrokeWidth > 0) {
-                              context.setAttr('lineWidth', subStrokeWidth);
-                              context.setAttr('strokeStyle', subStroke);
-                              console.info("subStroke");
+                          if (subfill) {
+                              this.attrs.fill = subfill;
+                              bfill = true;
+                          }
+                          if (strokeEnabled) {
+                              var subStroke = this._getStyleValueOfProperty(sty, "stroke", false);
+                              var subStrokeWidth = this._getStyleValueOfProperty(sty, "strokeWidth", false);
+                              if (subStrokeWidth != null) {
+                                  this.attrs.strokeWidth = subStrokeWidth;
+                                  bstrokeWidth = true;
+                              }
+                              if (subStroke) {
+                                  this.attrs.stroke = subStroke;
+                                  bstroke = true;
+                              }
+                              if (bstroke || bstrokeWidth)
+                                  this._clearCache("hasStroke");
                           }
                           var deltaY = this._getStyleValueOfProperty(sty, "deltaY", false);
-                          this._partialTextX = lineTranslateX;
+                          var deltaX = this._getStyleValueOfProperty(sty, "deltaX", false);
+                          this._partialTextX = lineTranslateX + deltaX;
                           this._partialTextY = (_a = translateY + lineTranslateY + deltaY) !== null && _a !== void 0 ? _a : 0;
                           context.fillStrokeShape(this);
                           context.restore();
-                          if (sub)
+                          if (bfont)
                               lineTranslateX += this._measureSize2(letter, subFontStyle, subFontVariant, subFontSize, subFontFamily).width;
                           else
                               lineTranslateX += this.measureSize(letter).width;
+                          lineTranslateX += deltaX;
+                          if (bstroke)
+                              this.attrs.stroke = stroke;
+                          if (bstrokeWidth)
+                              this.attrs.strokeWidth = strokeWidth;
+                          if (bfill)
+                              this.attrs.fill = fill;
                       }
                       else {
                           this._partialTextX = lineTranslateX;
@@ -13649,7 +13668,6 @@
                           context.fillStrokeShape(this);
                           lineTranslateX += this.measureSize(letter).width;
                       }
-                      console.info("=====");
                   }
               }
               else {
@@ -13678,15 +13696,15 @@
               : text === null || text === undefined
                   ? ''
                   : text + '';
-          this._setAttr(TEXT$1, str);
+          this._setAttr(TEXT, str);
           return this;
       }
       getWidth() {
-          var isAuto = this.attrs.width === AUTO$1 || this.attrs.width === undefined;
+          var isAuto = this.attrs.width === AUTO || this.attrs.width === undefined;
           return isAuto ? this.getTextWidth() + this.padding() * 2 : this.attrs.width;
       }
       getHeight() {
-          var isAuto = this.attrs.height === AUTO$1 || this.attrs.height === undefined;
+          var isAuto = this.attrs.height === AUTO || this.attrs.height === undefined;
           return isAuto
               ? this.fontSize() * this.textArr.length * this.lineHeight() +
                   this.padding() * 2
@@ -13714,7 +13732,7 @@
        * @returns {Object} { width , height} of measured text
        */
       measureSize(text) {
-          var _context = getDummyContext$1(), fontSize = this.fontSize(), metrics;
+          var _context = getDummyContext(), fontSize = this.fontSize(), metrics;
           _context.save();
           _context.font = this._getContextFont();
           metrics = _context.measureText(text);
@@ -13725,7 +13743,7 @@
           };
       }
       _measureSize2(text, fontStyle, fontVariant, fontSize, fontFamily) {
-          var _context = getDummyContext$1(), metrics;
+          var _context = getDummyContext(), metrics;
           _context.save();
           _context.font = this._getContextFont2(fontStyle, fontVariant, fontSize, fontFamily);
           metrics = _context.measureText(text);
@@ -13737,21 +13755,21 @@
       }
       _getContextFont() {
           return (this.fontStyle() +
-              SPACE$1 +
+              SPACE +
               this.fontVariant() +
-              SPACE$1 +
-              (this.fontSize() + PX_SPACE$1) +
+              SPACE +
+              (this.fontSize() + PX_SPACE) +
               // wrap font family into " so font families with spaces works ok
-              normalizeFontFamily$1(this.fontFamily()));
+              normalizeFontFamily(this.fontFamily()));
       }
       _getContextFont2(fontStyle, fontVariant, fontSize, fontFamily) {
           return (fontStyle +
-              SPACE$1 +
+              SPACE +
               fontVariant +
-              SPACE$1 +
-              (fontSize + PX_SPACE$1) +
+              SPACE +
+              (fontSize + PX_SPACE) +
               // wrap font family into " so font families with spaces works ok
-              normalizeFontFamily$1(fontFamily));
+              normalizeFontFamily(fontFamily));
       }
       _getStyleValueOfProperty(textStyle, property, def) {
           if (typeof textStyle[property] !== 'undefined') {
@@ -13780,7 +13798,7 @@
       }
       _addTextLine(line) {
           const align = this.align();
-          if (align === JUSTIFY$1) {
+          if (align === JUSTIFY) {
               line = line.trim();
           }
           var width = this._getTextWidth(line);
@@ -13793,16 +13811,16 @@
       _getTextWidth(text) {
           var letterSpacing = this.letterSpacing();
           var length = text.length;
-          return (getDummyContext$1().measureText(text).width +
+          return (getDummyContext().measureText(text).width +
               (length ? letterSpacing * (length - 1) : 0));
       }
       _setTextData() {
-          var lines = this.text().split('\n'), fontSize = +this.fontSize(), textWidth = 0, lineHeightPx = this.lineHeight() * fontSize, width = this.attrs.width, height = this.attrs.height, fixedWidth = width !== AUTO$1 && width !== undefined, fixedHeight = height !== AUTO$1 && height !== undefined, padding = this.padding(), maxWidth = width - padding * 2, maxHeightPx = height - padding * 2, currentHeightPx = 0, wrap = this.wrap(), 
+          var lines = this.text().split('\n'), fontSize = +this.fontSize(), textWidth = 0, lineHeightPx = this.lineHeight() * fontSize, width = this.attrs.width, height = this.attrs.height, fixedWidth = width !== AUTO && width !== undefined, fixedHeight = height !== AUTO && height !== undefined, padding = this.padding(), maxWidth = width - padding * 2, maxHeightPx = height - padding * 2, currentHeightPx = 0, wrap = this.wrap(), 
           // align = this.align(),
-          shouldWrap = wrap !== NONE$1, wrapAtWord = wrap !== CHAR$1 && shouldWrap, shouldAddEllipsis = this.ellipsis();
+          shouldWrap = wrap !== NONE, wrapAtWord = wrap !== CHAR && shouldWrap, shouldAddEllipsis = this.ellipsis();
           this.textArr = [];
-          getDummyContext$1().font = this._getContextFont();
-          var additionalWidth = shouldAddEllipsis ? this._getTextWidth(ELLIPSIS$1) : 0;
+          getDummyContext().font = this._getContextFont();
+          var additionalWidth = shouldAddEllipsis ? this._getTextWidth(ELLIPSIS) : 0;
           for (var i = 0, max = lines.length; i < max; ++i) {
               var line = lines[i];
               var lineWidth = this._getTextWidth(line);
@@ -13839,13 +13857,13 @@
                               // try to find a space or dash where wrapping could be done
                               var wrapIndex;
                               var nextChar = line[match.length];
-                              var nextIsSpaceOrDash = nextChar === SPACE$1 || nextChar === DASH$1;
+                              var nextIsSpaceOrDash = nextChar === SPACE || nextChar === DASH;
                               if (nextIsSpaceOrDash && matchWidth <= maxWidth) {
                                   wrapIndex = match.length;
                               }
                               else {
                                   wrapIndex =
-                                      Math.max(match.lastIndexOf(SPACE$1), match.lastIndexOf(DASH$1)) +
+                                      Math.max(match.lastIndexOf(SPACE), match.lastIndexOf(DASH)) +
                                           1;
                               }
                               if (wrapIndex > 0) {
@@ -13922,24 +13940,24 @@
        * @returns
        */
       _shouldHandleEllipsis(currentHeightPx) {
-          var fontSize = +this.fontSize(), lineHeightPx = this.lineHeight() * fontSize, height = this.attrs.height, fixedHeight = height !== AUTO$1 && height !== undefined, padding = this.padding(), maxHeightPx = height - padding * 2, wrap = this.wrap(), shouldWrap = wrap !== NONE$1;
+          var fontSize = +this.fontSize(), lineHeightPx = this.lineHeight() * fontSize, height = this.attrs.height, fixedHeight = height !== AUTO && height !== undefined, padding = this.padding(), maxHeightPx = height - padding * 2, wrap = this.wrap(), shouldWrap = wrap !== NONE;
           return (!shouldWrap ||
               (fixedHeight && currentHeightPx + lineHeightPx > maxHeightPx));
       }
       _tryToAddEllipsisToLastLine() {
-          var width = this.attrs.width, fixedWidth = width !== AUTO$1 && width !== undefined, padding = this.padding(), maxWidth = width - padding * 2, shouldAddEllipsis = this.ellipsis();
+          var width = this.attrs.width, fixedWidth = width !== AUTO && width !== undefined, padding = this.padding(), maxWidth = width - padding * 2, shouldAddEllipsis = this.ellipsis();
           var lastLine = this.textArr[this.textArr.length - 1];
           if (!lastLine || !shouldAddEllipsis) {
               return;
           }
           if (fixedWidth) {
-              var haveSpace = this._getTextWidth(lastLine.text + ELLIPSIS$1) < maxWidth;
+              var haveSpace = this._getTextWidth(lastLine.text + ELLIPSIS) < maxWidth;
               if (!haveSpace) {
                   lastLine.text = lastLine.text.slice(0, lastLine.text.length - 3);
               }
           }
           this.textArr.splice(this.textArr.length - 1, 1);
-          this._addTextLine(lastLine.text + ELLIPSIS$1);
+          this._addTextLine(lastLine.text + ELLIPSIS);
       }
       // for text we can't disable stroke scaling
       // if we do, the result will be unexpected
@@ -13947,9 +13965,9 @@
           return true;
       }
   }
-  Text.prototype._fillFunc = _fillFunc$2;
-  Text.prototype._strokeFunc = _strokeFunc$2;
-  Text.prototype.className = TEXT_UPPER$1;
+  Text.prototype._fillFunc = _fillFunc$1;
+  Text.prototype._strokeFunc = _strokeFunc$1;
+  Text.prototype.className = TEXT_UPPER;
   Text.prototype._attrsAffectingSize = [
       'text',
       'fontSize',
@@ -14036,7 +14054,7 @@
    * // set font style
    * text.fontStyle('bold');
    */
-  Factory.addGetterSetter(Text, 'fontStyle', NORMAL$2);
+  Factory.addGetterSetter(Text, 'fontStyle', NORMAL$1);
   /**
    * get/set font variant.  Can be 'normal' or 'small-caps'.  'normal' is the default.
    * @name Konva.Text#fontVariant
@@ -14050,7 +14068,7 @@
    * // set font variant
    * text.fontVariant('small-caps');
    */
-  Factory.addGetterSetter(Text, 'fontVariant', NORMAL$2);
+  Factory.addGetterSetter(Text, 'fontVariant', NORMAL$1);
   /**
    * get/set padding
    * @name Konva.Text#padding
@@ -14081,7 +14099,7 @@
    * // align text to right
    * text.align('right');
    */
-  Factory.addGetterSetter(Text, 'align', LEFT$1);
+  Factory.addGetterSetter(Text, 'align', LEFT);
   /**
    * get/set vertical align of text.  Can be 'top', 'middle', 'bottom'.
    * @name Konva.Text#verticalAlign
@@ -14095,7 +14113,7 @@
    * // center text
    * text.verticalAlign('middle');
    */
-  Factory.addGetterSetter(Text, 'verticalAlign', TOP$1);
+  Factory.addGetterSetter(Text, 'verticalAlign', TOP);
   /**
    * get/set line height.  The default is 1.
    * @name Konva.Text#lineHeight
@@ -14125,7 +14143,7 @@
    * // set wrap
    * text.wrap('word');
    */
-  Factory.addGetterSetter(Text, 'wrap', WORD$1);
+  Factory.addGetterSetter(Text, 'wrap', WORD);
   /**
    * get/set ellipsis. Can be true or false. Default is false. If ellipses is true,
    * Konva will add "..." at the end of the text if it doesn't have enough space to write characters.
@@ -14185,11 +14203,11 @@
   Factory.addGetterSetter(Text, 'textDecoration', '');
   Factory.addGetterSetter(Text, 'styles', null);
 
-  var EMPTY_STRING = '', NORMAL$1 = 'normal';
-  function _fillFunc$1(context) {
+  var EMPTY_STRING = '', NORMAL = 'normal';
+  function _fillFunc(context) {
       context.fillText(this.partialText, 0, 0);
   }
-  function _strokeFunc$1(context) {
+  function _strokeFunc(context) {
       context.strokeText(this.partialText, 0, 0);
   }
   /**
@@ -14433,7 +14451,7 @@
           if (align === 'right') {
               offset = Math.max(0, fullPathWidth - textFullWidth);
           }
-          var charArr = stringToArray$1(this.text());
+          var charArr = stringToArray(this.text());
           var spacesNumber = this.text().split(' ').length - 1;
           var p0, p1, pathCmd;
           var pIndex = -1;
@@ -14656,10 +14674,10 @@
           return super.destroy();
       }
   }
-  TextPath.prototype._fillFunc = _fillFunc$1;
-  TextPath.prototype._strokeFunc = _strokeFunc$1;
-  TextPath.prototype._fillFuncHit = _fillFunc$1;
-  TextPath.prototype._strokeFuncHit = _strokeFunc$1;
+  TextPath.prototype._fillFunc = _fillFunc;
+  TextPath.prototype._strokeFunc = _strokeFunc;
+  TextPath.prototype._fillFuncHit = _fillFunc;
+  TextPath.prototype._strokeFuncHit = _strokeFunc;
   TextPath.prototype.className = 'TextPath';
   TextPath.prototype._attrsAffectingSize = ['text', 'fontSize', 'data'];
   _registerNode(TextPath);
@@ -14721,7 +14739,7 @@
    * // set font style
    * shape.fontStyle('bold');
    */
-  Factory.addGetterSetter(TextPath, 'fontStyle', NORMAL$1);
+  Factory.addGetterSetter(TextPath, 'fontStyle', NORMAL);
   /**
    * get/set horizontal align of text.  Can be 'left', 'center', 'right' or 'justify'
    * @name Konva.TextPath#align
@@ -14780,7 +14798,7 @@
    * // set font variant
    * shape.fontVariant('small-caps');
    */
-  Factory.addGetterSetter(TextPath, 'fontVariant', NORMAL$1);
+  Factory.addGetterSetter(TextPath, 'fontVariant', NORMAL);
   /**
    * get/set text
    * @name Konva.TextPath#getText
@@ -14827,7 +14845,7 @@
   Factory.addGetterSetter(TextPath, 'kerningFunc', null);
 
   var EVENTS_NAME = 'tr-konva';
-  var ATTR_CHANGE_LIST$1 = [
+  var ATTR_CHANGE_LIST = [
       'resizeEnabledChange',
       'rotateAnchorOffsetChange',
       'rotateEnabledChange',
@@ -15010,7 +15028,7 @@
           this._handleMouseUp = this._handleMouseUp.bind(this);
           this.update = this.update.bind(this);
           // update transformer data for certain attr changes
-          this.on(ATTR_CHANGE_LIST$1, this.update);
+          this.on(ATTR_CHANGE_LIST, this.update);
           if (this.getNode()) {
               this.update();
           }
@@ -16431,855 +16449,6 @@
       getAngleDeg: 'getAngle',
       setAngleDeg: 'setAngle',
   });
-
-  function stringToArray(string) {
-      // we need to use `Array.from` because it can split unicode string correctly
-      // we also can use some regexp magic from lodash:
-      // https://github.com/lodash/lodash/blob/fb1f99d9d90ad177560d771bc5953a435b2dc119/lodash.toarray/index.js#L256
-      // but I decided it is too much code for that small fix
-      return Array.from(string);
-  }
-  // constants
-  var AUTO = 'auto', 
-  //CANVAS = 'canvas',
-  CENTER = 'center', JUSTIFY = 'justify', CHANGE_KONVA = 'Change.konva', CONTEXT_2D = '2d', DASH = '-', LEFT = 'left', TEXT = 'text', TEXT_UPPER = 'IText', TOP = 'top', BOTTOM = 'bottom', MIDDLE = 'middle', NORMAL = 'normal', PX_SPACE = 'px ', SPACE = ' ', RIGHT = 'right', WORD = 'word', CHAR = 'char', NONE = 'none', ELLIPSIS = '…', ATTR_CHANGE_LIST = [
-      'fontFamily',
-      'fontSize',
-      'fontStyle',
-      'fontVariant',
-      'padding',
-      'align',
-      'verticalAlign',
-      'lineHeight',
-      'text',
-      'width',
-      'height',
-      'wrap',
-      'ellipsis',
-      'letterSpacing',
-      //'styles'
-  ], 
-  // cached variables
-  attrChangeListLen = ATTR_CHANGE_LIST.length;
-  function normalizeFontFamily(fontFamily) {
-      return fontFamily
-          .split(',')
-          .map((family) => {
-          family = family.trim();
-          const hasSpace = family.indexOf(' ') >= 0;
-          const hasQuotes = family.indexOf('"') >= 0 || family.indexOf("'") >= 0;
-          if (hasSpace && !hasQuotes) {
-              family = `"${family}"`;
-          }
-          return family;
-      })
-          .join(', ');
-  }
-  var dummyContext;
-  function getDummyContext() {
-      if (dummyContext) {
-          return dummyContext;
-      }
-      dummyContext = Util.createCanvasElement().getContext(CONTEXT_2D);
-      return dummyContext;
-  }
-  function _fillFunc(context) {
-      context.fillText(this._partialText, this._partialTextX, this._partialTextY);
-  }
-  function _strokeFunc(context) {
-      context.strokeText(this._partialText, this._partialTextX, this._partialTextY);
-  }
-  function checkDefaultFill(config) {
-      config = config || {};
-      // set default color to black
-      if (!config.fillLinearGradientColorStops &&
-          !config.fillRadialGradientColorStops &&
-          !config.fillPatternImage) {
-          config.fill = config.fill || 'black';
-      }
-      return config;
-  }
-  /**
-   * Text constructor
-   * @constructor
-   * @memberof Konva
-   * @augments Konva.Shape
-   * @param {Object} config
-   * @param {String} [config.fontFamily] default is Arial
-   * @param {Number} [config.fontSize] in pixels.  Default is 12
-   * @param {String} [config.fontStyle] can be 'normal', 'bold', 'italic' or even 'italic bold'.  Default is 'normal'
-   * @param {String} [config.fontVariant] can be normal or small-caps.  Default is normal
-   * @param {String} [config.textDecoration] can be line-through, underline or empty string. Default is empty string.
-   * @param {String} config.text
-   * @param {String} [config.align] can be left, center, or right
-   * @param {String} [config.verticalAlign] can be top, middle or bottom
-   * @param {Number} [config.padding]
-   * @param {Number} [config.lineHeight] default is 1
-   * @param {String} [config.wrap] can be "word", "char", or "none". Default is word
-   * @param {Boolean} [config.ellipsis] can be true or false. Default is false. if Konva.Text config is set to wrap="none" and ellipsis=true, then it will add "..." to the end
-   * @param {TextStyle[]} [config.styles] can be "word", "char", or "none". Default is word
-   * @param {String} [config.fill] fill color
-     * @param {Image} [config.fillPatternImage] fill pattern image
-     * @param {Number} [config.fillPatternX]
-     * @param {Number} [config.fillPatternY]
-     * @param {Object} [config.fillPatternOffset] object with x and y component
-     * @param {Number} [config.fillPatternOffsetX] 
-     * @param {Number} [config.fillPatternOffsetY] 
-     * @param {Object} [config.fillPatternScale] object with x and y component
-     * @param {Number} [config.fillPatternScaleX]
-     * @param {Number} [config.fillPatternScaleY]
-     * @param {Number} [config.fillPatternRotation]
-     * @param {String} [config.fillPatternRepeat] can be "repeat", "repeat-x", "repeat-y", or "no-repeat".  The default is "no-repeat"
-     * @param {Object} [config.fillLinearGradientStartPoint] object with x and y component
-     * @param {Number} [config.fillLinearGradientStartPointX]
-     * @param {Number} [config.fillLinearGradientStartPointY]
-     * @param {Object} [config.fillLinearGradientEndPoint] object with x and y component
-     * @param {Number} [config.fillLinearGradientEndPointX]
-     * @param {Number} [config.fillLinearGradientEndPointY]
-     * @param {Array} [config.fillLinearGradientColorStops] array of color stops
-     * @param {Object} [config.fillRadialGradientStartPoint] object with x and y component
-     * @param {Number} [config.fillRadialGradientStartPointX]
-     * @param {Number} [config.fillRadialGradientStartPointY]
-     * @param {Object} [config.fillRadialGradientEndPoint] object with x and y component
-     * @param {Number} [config.fillRadialGradientEndPointX] 
-     * @param {Number} [config.fillRadialGradientEndPointY] 
-     * @param {Number} [config.fillRadialGradientStartRadius]
-     * @param {Number} [config.fillRadialGradientEndRadius]
-     * @param {Array} [config.fillRadialGradientColorStops] array of color stops
-     * @param {Boolean} [config.fillEnabled] flag which enables or disables the fill.  The default value is true
-     * @param {String} [config.fillPriority] can be color, linear-gradient, radial-graident, or pattern.  The default value is color.  The fillPriority property makes it really easy to toggle between different fill types.  For example, if you want to toggle between a fill color style and a fill pattern style, simply set the fill property and the fillPattern properties, and then use setFillPriority('color') to render the shape with a color fill, or use setFillPriority('pattern') to render the shape with the pattern fill configuration
-     * @param {String} [config.stroke] stroke color
-     * @param {Number} [config.strokeWidth] stroke width
-     * @param {Boolean} [config.fillAfterStrokeEnabled]. Should we draw fill AFTER stroke? Default is false.
-     * @param {Number} [config.hitStrokeWidth] size of the stroke on hit canvas.  The default is "auto" - equals to strokeWidth
-     * @param {Boolean} [config.strokeHitEnabled] flag which enables or disables stroke hit region.  The default is true
-     * @param {Boolean} [config.perfectDrawEnabled] flag which enables or disables using buffer canvas.  The default is true
-     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shadow for stroke.  The default is true
-     * @param {Boolean} [config.strokeScaleEnabled] flag which enables or disables stroke scale.  The default is true
-     * @param {Boolean} [config.strokeEnabled] flag which enables or disables the stroke.  The default value is true
-     * @param {String} [config.lineJoin] can be miter, round, or bevel.  The default
-     *  is miter
-     * @param {String} [config.lineCap] can be butt, round, or square.  The default
-     *  is butt
-     * @param {String} [config.shadowColor]
-     * @param {Number} [config.shadowBlur]
-     * @param {Object} [config.shadowOffset] object with x and y component
-     * @param {Number} [config.shadowOffsetX]
-     * @param {Number} [config.shadowOffsetY]
-     * @param {Number} [config.shadowOpacity] shadow opacity.  Can be any real number
-     *  between 0 and 1
-     * @param {Boolean} [config.shadowEnabled] flag which enables or disables the shadow.  The default value is true
-     * @param {Array} [config.dash]
-     * @param {Boolean} [config.dashEnabled] flag which enables or disables the dashArray.  The default value is true
-
-   * @param {Number} [config.x]
-     * @param {Number} [config.y]
-     * @param {Number} [config.width]
-     * @param {Number} [config.height]
-     * @param {Boolean} [config.visible]
-     * @param {Boolean} [config.listening] whether or not the node is listening for events
-     * @param {String} [config.id] unique id
-     * @param {String} [config.name] non-unique name
-     * @param {Number} [config.opacity] determines node opacity.  Can be any number between 0 and 1
-     * @param {Object} [config.scale] set scale
-     * @param {Number} [config.scaleX] set scale x
-     * @param {Number} [config.scaleY] set scale y
-     * @param {Number} [config.rotation] rotation in degrees
-     * @param {Object} [config.offset] offset from center point and rotation point
-     * @param {Number} [config.offsetX] set offset x
-     * @param {Number} [config.offsetY] set offset y
-     * @param {Boolean} [config.draggable] makes the node draggable.  When stages are draggable, you can drag and drop
-     *  the entire stage by dragging any portion of the stage
-     * @param {Number} [config.dragDistance]
-     * @param {Function} [config.dragBoundFunc]
-   * @example
-   * var text = new Konva.Text({
-   *   x: 10,
-   *   y: 15,
-   *   text: 'Simple Text',
-   *   fontSize: 30,
-   *   fontFamily: 'Calibri',
-   *   fill: 'green'
-   * });
-   */
-  class IText extends Shape {
-      constructor(config) {
-          super(checkDefaultFill(config));
-          this._partialTextX = 0;
-          this._partialTextY = 0;
-          // update text data for certain attr changes
-          for (var n = 0; n < attrChangeListLen; n++) {
-              this.on(ATTR_CHANGE_LIST[n] + CHANGE_KONVA, this._setTextData);
-          }
-          this._setTextData();
-      }
-      _sceneFunc(context) {
-          var _a;
-          var textArr = this.textArr, textArrLen = textArr.length;
-          if (!this.text()) {
-              return;
-          }
-          var padding = this.padding(), fontSize = this.fontSize(), lineHeightPx = this.lineHeight() * fontSize, verticalAlign = this.verticalAlign(), alignY = 0, align = this.align(), totalWidth = this.getWidth(), letterSpacing = this.letterSpacing(), fill = this.fill(), textDecoration = this.textDecoration(), shouldUnderline = textDecoration.indexOf('underline') !== -1, shouldLineThrough = textDecoration.indexOf('line-through') !== -1, n;
-          this.stroke(); this.strokeWidth();
-          var translateY = 0;
-          var translateY = lineHeightPx / 2;
-          var lineTranslateX = 0;
-          var lineTranslateY = 0;
-          context.setAttr('font', this._getContextFont());
-          context.setAttr('textBaseline', MIDDLE);
-          context.setAttr('textAlign', LEFT);
-          // handle vertical alignment
-          if (verticalAlign === MIDDLE) {
-              alignY = (this.getHeight() - textArrLen * lineHeightPx - padding * 2) / 2;
-          }
-          else if (verticalAlign === BOTTOM) {
-              alignY = this.getHeight() - textArrLen * lineHeightPx - padding * 2;
-          }
-          context.translate(padding, alignY + padding);
-          var cindex = 0;
-          // draw text lines
-          for (n = 0; n < textArrLen; n++) {
-              var lineTranslateX = 0;
-              var lineTranslateY = 0;
-              var obj = textArr[n], text = obj.text, width = obj.width, lastLine = obj.lastInParagraph, spacesNumber, oneWord, lineWidth;
-              // horizontal alignment
-              context.save();
-              if (align === RIGHT) {
-                  lineTranslateX += totalWidth - width - padding * 2;
-              }
-              else if (align === CENTER) {
-                  lineTranslateX += (totalWidth - width - padding * 2) / 2;
-              }
-              if (shouldUnderline) {
-                  context.save();
-                  context.beginPath();
-                  context.moveTo(lineTranslateX, translateY + lineTranslateY + Math.round(fontSize / 2));
-                  spacesNumber = text.split(' ').length - 1;
-                  oneWord = spacesNumber === 0;
-                  lineWidth =
-                      align === JUSTIFY && !lastLine ? totalWidth - padding * 2 : width;
-                  context.lineTo(lineTranslateX + Math.round(lineWidth), translateY + lineTranslateY + Math.round(fontSize / 2));
-                  // I have no idea what is real ratio
-                  // just /15 looks good enough
-                  context.lineWidth = fontSize / 15;
-                  const gradient = this._getLinearGradient();
-                  context.strokeStyle = gradient || fill;
-                  context.stroke();
-                  context.restore();
-              }
-              if (shouldLineThrough) {
-                  context.save();
-                  context.beginPath();
-                  context.moveTo(lineTranslateX, translateY + lineTranslateY);
-                  spacesNumber = text.split(' ').length - 1;
-                  oneWord = spacesNumber === 0;
-                  lineWidth =
-                      align === JUSTIFY && lastLine && !oneWord
-                          ? totalWidth - padding * 2
-                          : width;
-                  context.lineTo(lineTranslateX + Math.round(lineWidth), translateY + lineTranslateY);
-                  context.lineWidth = fontSize / 15;
-                  const gradient = this._getLinearGradient();
-                  context.strokeStyle = gradient || fill;
-                  context.stroke();
-                  context.restore();
-              }
-              var array = stringToArray(text);
-              if (letterSpacing !== 0 || align === JUSTIFY || this._styleIsNotEmpty(cindex, cindex + array.length)) {
-                  //   var words = text.split(' ');
-                  spacesNumber = text.split(' ').length - 1;
-                  for (var li = 0; li < array.length; li++) {
-                      var letter = array[li];
-                      // skip justify for the last line
-                      if (letter === ' ' && !lastLine && align === JUSTIFY) {
-                          lineTranslateX += (totalWidth - padding * 2 - width) / spacesNumber;
-                          // context.translate(
-                          //   Math.floor((totalWidth - padding * 2 - width) / spacesNumber),
-                          //   0
-                          // );
-                      }
-                      this._partialText = letter;
-                      var sty = this._getStyleDeclaration(cindex++);
-                      if (!!sty) {
-                          context.save();
-                          var subFontStyle = this._getStyleValueOfProperty(sty, "fontStyle", false);
-                          var subFontVariant = this._getStyleValueOfProperty(sty, "fontVariant", true);
-                          var subFontSize = this._getStyleValueOfProperty(sty, "fontSize", false);
-                          var subFontFamily = this._getStyleValueOfProperty(sty, "fontFamily", false);
-                          var subfill = this._getStyleValueOfProperty(sty, "fill", false);
-                          var subStrokeWidth = this._getStyleValueOfProperty(sty, "strokeWidth", true);
-                          var subStroke = this._getStyleValueOfProperty(sty, "stroke", false);
-                          var sub = false;
-                          if (subFontStyle || subFontSize != null || subFontFamily) {
-                              sub = true;
-                              subFontStyle = subFontStyle !== null && subFontStyle !== void 0 ? subFontStyle : this.fontStyle();
-                              subFontFamily = subFontFamily !== null && subFontFamily !== void 0 ? subFontFamily : this.fontFamily();
-                              subFontSize = subFontSize !== null && subFontSize !== void 0 ? subFontSize : this.fontSize();
-                              context.setAttr('font', this._getContextFont2(subFontStyle, subFontVariant, subFontSize, subFontFamily));
-                          }
-                          if (subfill) {
-                              this.fill(subfill);
-                              //context.setAttr('fillStyle', subfill);
-                          }
-                          if (subStroke && subStrokeWidth > 0) {
-                              context.setAttr('lineWidth', subStrokeWidth);
-                              context.setAttr('strokeStyle', subStroke);
-                          }
-                          var deltaY = this._getStyleValueOfProperty(sty, "deltaY", false);
-                          var deltaX = this._getStyleValueOfProperty(sty, "deltaX", false);
-                          this._partialTextX = lineTranslateX + deltaX;
-                          this._partialTextY = (_a = translateY + lineTranslateY + deltaY) !== null && _a !== void 0 ? _a : 0;
-                          context.fillStrokeShape(this);
-                          context.restore();
-                          if (sub)
-                              lineTranslateX += this._measureSize2(letter, subFontStyle, subFontVariant, subFontSize, subFontFamily).width;
-                          else
-                              lineTranslateX += this.measureSize(letter).width;
-                          lineTranslateX += deltaX;
-                      }
-                      else {
-                          this._partialTextX = lineTranslateX;
-                          this._partialTextY = translateY + lineTranslateY;
-                          context.fillStrokeShape(this);
-                          lineTranslateX += this.measureSize(letter).width;
-                      }
-                  }
-              }
-              else {
-                  array.length = 0;
-                  this._partialTextX = lineTranslateX;
-                  this._partialTextY = translateY + lineTranslateY;
-                  this._partialText = text;
-                  context.fillStrokeShape(this);
-              }
-              context.restore();
-              if (textArrLen > 1) {
-                  translateY += lineHeightPx;
-              }
-          }
-          //this.stroke(stroke),
-          //  this.strokeWidth(strokeWidth),
-          //  this.fill(fill);
-      }
-      _hitFunc(context) {
-          var width = this.getWidth(), height = this.getHeight();
-          context.beginPath();
-          context.rect(0, 0, width, height);
-          context.closePath();
-          context.fillStrokeShape(this);
-      }
-      setText(text) {
-          var str = Util._isString(text)
-              ? text
-              : text === null || text === undefined
-                  ? ''
-                  : text + '';
-          this._setAttr(TEXT, str);
-          return this;
-      }
-      getWidth() {
-          var isAuto = this.attrs.width === AUTO || this.attrs.width === undefined;
-          return isAuto ? this.getTextWidth() + this.padding() * 2 : this.attrs.width;
-      }
-      getHeight() {
-          var isAuto = this.attrs.height === AUTO || this.attrs.height === undefined;
-          return isAuto
-              ? this.fontSize() * this.textArr.length * this.lineHeight() +
-                  this.padding() * 2
-              : this.attrs.height;
-      }
-      /**
-       * get pure text width without padding
-       * @method
-       * @name Konva.Text#getTextWidth
-       * @returns {Number}
-       */
-      getTextWidth() {
-          return this.textWidth;
-      }
-      getTextHeight() {
-          Util.warn('text.getTextHeight() method is deprecated. Use text.height() - for full height and text.fontSize() - for one line height.');
-          return this.textHeight;
-      }
-      /**
-       * measure string with the font of current text shape.
-       * That method can't handle multiline text.
-       * @method
-       * @name Konva.Text#measureSize
-       * @param {String} [text] text to measure
-       * @returns {Object} { width , height} of measured text
-       */
-      measureSize(text) {
-          var _context = getDummyContext(), fontSize = this.fontSize(), metrics;
-          _context.save();
-          _context.font = this._getContextFont();
-          metrics = _context.measureText(text);
-          _context.restore();
-          return {
-              width: metrics.width,
-              height: fontSize,
-          };
-      }
-      _measureSize2(text, fontStyle, fontVariant, fontSize, fontFamily) {
-          var _context = getDummyContext(), metrics;
-          _context.save();
-          _context.font = this._getContextFont2(fontStyle, fontVariant, fontSize, fontFamily);
-          metrics = _context.measureText(text);
-          _context.restore();
-          return {
-              width: metrics.width,
-              height: fontSize,
-          };
-      }
-      _getContextFont() {
-          return (this.fontStyle() +
-              SPACE +
-              this.fontVariant() +
-              SPACE +
-              (this.fontSize() + PX_SPACE) +
-              // wrap font family into " so font families with spaces works ok
-              normalizeFontFamily(this.fontFamily()));
-      }
-      _getContextFont2(fontStyle, fontVariant, fontSize, fontFamily) {
-          return (fontStyle +
-              SPACE +
-              fontVariant +
-              SPACE +
-              (fontSize + PX_SPACE) +
-              // wrap font family into " so font families with spaces works ok
-              normalizeFontFamily(fontFamily));
-      }
-      _getStyleValueOfProperty(textStyle, property, def) {
-          if (typeof textStyle[property] !== 'undefined') {
-              return textStyle[property];
-          }
-          if (def != false)
-              return this.getAttr(property);
-          else
-              return null;
-      }
-      _getStyleDeclaration(index) {
-          var stys = this.styles();
-          var ts = null;
-          if (!!stys) {
-              ts = stys.find(o => index >= o.start && (!o.end || index <= o.end));
-          }
-          return ts;
-      }
-      _styleIsNotEmpty(start, end) {
-          var stys = this.styles();
-          var ts = null;
-          if (!!stys) {
-              ts = stys.find(o => o.start >= start && o.start <= end);
-          }
-          return !!ts;
-      }
-      _addTextLine(line) {
-          const align = this.align();
-          if (align === JUSTIFY) {
-              line = line.trim();
-          }
-          var width = this._getTextWidth(line);
-          return this.textArr.push({
-              text: line,
-              width: width,
-              lastInParagraph: false,
-          });
-      }
-      _getTextWidth(text) {
-          var letterSpacing = this.letterSpacing();
-          var length = text.length;
-          return (getDummyContext().measureText(text).width +
-              (length ? letterSpacing * (length - 1) : 0));
-      }
-      _setTextData() {
-          var lines = this.text().split('\n'), fontSize = +this.fontSize(), textWidth = 0, lineHeightPx = this.lineHeight() * fontSize, width = this.attrs.width, height = this.attrs.height, fixedWidth = width !== AUTO && width !== undefined, fixedHeight = height !== AUTO && height !== undefined, padding = this.padding(), maxWidth = width - padding * 2, maxHeightPx = height - padding * 2, currentHeightPx = 0, wrap = this.wrap(), 
-          // align = this.align(),
-          shouldWrap = wrap !== NONE, wrapAtWord = wrap !== CHAR && shouldWrap, shouldAddEllipsis = this.ellipsis();
-          this.textArr = [];
-          getDummyContext().font = this._getContextFont();
-          var additionalWidth = shouldAddEllipsis ? this._getTextWidth(ELLIPSIS) : 0;
-          for (var i = 0, max = lines.length; i < max; ++i) {
-              var line = lines[i];
-              var lineWidth = this._getTextWidth(line);
-              if (fixedWidth && lineWidth > maxWidth) {
-                  /*
-                   * if width is fixed and line does not fit entirely
-                   * break the line into multiple fitting lines
-                   */
-                  while (line.length > 0) {
-                      /*
-                       * use binary search to find the longest substring that
-                       * that would fit in the specified width
-                       */
-                      var low = 0, high = line.length, match = '', matchWidth = 0;
-                      while (low < high) {
-                          var mid = (low + high) >>> 1, substr = line.slice(0, mid + 1), substrWidth = this._getTextWidth(substr) + additionalWidth;
-                          if (substrWidth <= maxWidth) {
-                              low = mid + 1;
-                              match = substr;
-                              matchWidth = substrWidth;
-                          }
-                          else {
-                              high = mid;
-                          }
-                      }
-                      /*
-                       * 'low' is now the index of the substring end
-                       * 'match' is the substring
-                       * 'matchWidth' is the substring width in px
-                       */
-                      if (match) {
-                          // a fitting substring was found
-                          if (wrapAtWord) {
-                              // try to find a space or dash where wrapping could be done
-                              var wrapIndex;
-                              var nextChar = line[match.length];
-                              var nextIsSpaceOrDash = nextChar === SPACE || nextChar === DASH;
-                              if (nextIsSpaceOrDash && matchWidth <= maxWidth) {
-                                  wrapIndex = match.length;
-                              }
-                              else {
-                                  wrapIndex =
-                                      Math.max(match.lastIndexOf(SPACE), match.lastIndexOf(DASH)) +
-                                          1;
-                              }
-                              if (wrapIndex > 0) {
-                                  // re-cut the substring found at the space/dash position
-                                  low = wrapIndex;
-                                  match = match.slice(0, low);
-                                  matchWidth = this._getTextWidth(match);
-                              }
-                          }
-                          // if (align === 'right') {
-                          match = match.trimRight();
-                          // }
-                          this._addTextLine(match);
-                          textWidth = Math.max(textWidth, matchWidth);
-                          currentHeightPx += lineHeightPx;
-                          var shouldHandleEllipsis = this._shouldHandleEllipsis(currentHeightPx);
-                          if (shouldHandleEllipsis) {
-                              this._tryToAddEllipsisToLastLine();
-                              /*
-                               * stop wrapping if wrapping is disabled or if adding
-                               * one more line would overflow the fixed height
-                               */
-                              break;
-                          }
-                          line = line.slice(low);
-                          line = line.trimLeft();
-                          if (line.length > 0) {
-                              // Check if the remaining text would fit on one line
-                              lineWidth = this._getTextWidth(line);
-                              if (lineWidth <= maxWidth) {
-                                  // if it does, add the line and break out of the loop
-                                  this._addTextLine(line);
-                                  currentHeightPx += lineHeightPx;
-                                  textWidth = Math.max(textWidth, lineWidth);
-                                  break;
-                              }
-                          }
-                      }
-                      else {
-                          // not even one character could fit in the element, abort
-                          break;
-                      }
-                  }
-              }
-              else {
-                  // element width is automatically adjusted to max line width
-                  this._addTextLine(line);
-                  currentHeightPx += lineHeightPx;
-                  textWidth = Math.max(textWidth, lineWidth);
-                  if (this._shouldHandleEllipsis(currentHeightPx) && i < max - 1) {
-                      this._tryToAddEllipsisToLastLine();
-                  }
-              }
-              // if element height is fixed, abort if adding one more line would overflow
-              if (this.textArr[this.textArr.length - 1]) {
-                  this.textArr[this.textArr.length - 1].lastInParagraph = true;
-              }
-              if (fixedHeight && currentHeightPx + lineHeightPx > maxHeightPx) {
-                  break;
-              }
-          }
-          this.textHeight = fontSize;
-          // var maxTextWidth = 0;
-          // for(var j = 0; j < this.textArr.length; j++) {
-          //     maxTextWidth = Math.max(maxTextWidth, this.textArr[j].width);
-          // }
-          this.textWidth = textWidth;
-      }
-      /**
-       * whether to handle ellipsis, there are two cases:
-       * 1. the current line is the last line
-       * 2. wrap is NONE
-       * @param {Number} currentHeightPx
-       * @returns
-       */
-      _shouldHandleEllipsis(currentHeightPx) {
-          var fontSize = +this.fontSize(), lineHeightPx = this.lineHeight() * fontSize, height = this.attrs.height, fixedHeight = height !== AUTO && height !== undefined, padding = this.padding(), maxHeightPx = height - padding * 2, wrap = this.wrap(), shouldWrap = wrap !== NONE;
-          return (!shouldWrap ||
-              (fixedHeight && currentHeightPx + lineHeightPx > maxHeightPx));
-      }
-      _tryToAddEllipsisToLastLine() {
-          var width = this.attrs.width, fixedWidth = width !== AUTO && width !== undefined, padding = this.padding(), maxWidth = width - padding * 2, shouldAddEllipsis = this.ellipsis();
-          var lastLine = this.textArr[this.textArr.length - 1];
-          if (!lastLine || !shouldAddEllipsis) {
-              return;
-          }
-          if (fixedWidth) {
-              var haveSpace = this._getTextWidth(lastLine.text + ELLIPSIS) < maxWidth;
-              if (!haveSpace) {
-                  lastLine.text = lastLine.text.slice(0, lastLine.text.length - 3);
-              }
-          }
-          this.textArr.splice(this.textArr.length - 1, 1);
-          this._addTextLine(lastLine.text + ELLIPSIS);
-      }
-      // for text we can't disable stroke scaling
-      // if we do, the result will be unexpected
-      getStrokeScaleEnabled() {
-          return true;
-      }
-  }
-  IText.prototype._fillFunc = _fillFunc;
-  IText.prototype._strokeFunc = _strokeFunc;
-  IText.prototype.className = TEXT_UPPER;
-  IText.prototype._attrsAffectingSize = [
-      'text',
-      'fontSize',
-      'padding',
-      'wrap',
-      'lineHeight',
-      'letterSpacing',
-  ];
-  _registerNode(IText);
-  /**
-   * get/set width of text area, which includes padding.
-   * @name Konva.Text#width
-   * @method
-   * @param {Number} width
-   * @returns {Number}
-   * @example
-   * // get width
-   * var width = text.width();
-   *
-   * // set width
-   * text.width(20);
-   *
-   * // set to auto
-   * text.width('auto');
-   * text.width() // will return calculated width, and not "auto"
-   */
-  Factory.overWriteSetter(IText, 'width', getNumberOrAutoValidator());
-  /**
-   * get/set the height of the text area, which takes into account multi-line text, line heights, and padding.
-   * @name Konva.Text#height
-   * @method
-   * @param {Number} height
-   * @returns {Number}
-   * @example
-   * // get height
-   * var height = text.height();
-   *
-   * // set height
-   * text.height(20);
-   *
-   * // set to auto
-   * text.height('auto');
-   * text.height() // will return calculated height, and not "auto"
-   */
-  Factory.overWriteSetter(IText, 'height', getNumberOrAutoValidator());
-  /**
-   * get/set font family
-   * @name Konva.Text#fontFamily
-   * @method
-   * @param {String} fontFamily
-   * @returns {String}
-   * @example
-   * // get font family
-   * var fontFamily = text.fontFamily();
-   *
-   * // set font family
-   * text.fontFamily('Arial');
-   */
-  Factory.addGetterSetter(IText, 'fontFamily', 'Arial');
-  /**
-   * get/set font size in pixels
-   * @name Konva.Text#fontSize
-   * @method
-   * @param {Number} fontSize
-   * @returns {Number}
-   * @example
-   * // get font size
-   * var fontSize = text.fontSize();
-   *
-   * // set font size to 22px
-   * text.fontSize(22);
-   */
-  Factory.addGetterSetter(IText, 'fontSize', 12, getNumberValidator());
-  /**
-   * get/set font style.  Can be 'normal', 'italic', or 'bold' or even 'italic bold'.  'normal' is the default.
-   * @name Konva.Text#fontStyle
-   * @method
-   * @param {String} fontStyle
-   * @returns {String}
-   * @example
-   * // get font style
-   * var fontStyle = text.fontStyle();
-   *
-   * // set font style
-   * text.fontStyle('bold');
-   */
-  Factory.addGetterSetter(IText, 'fontStyle', NORMAL);
-  /**
-   * get/set font variant.  Can be 'normal' or 'small-caps'.  'normal' is the default.
-   * @name Konva.Text#fontVariant
-   * @method
-   * @param {String} fontVariant
-   * @returns {String}
-   * @example
-   * // get font variant
-   * var fontVariant = text.fontVariant();
-   *
-   * // set font variant
-   * text.fontVariant('small-caps');
-   */
-  Factory.addGetterSetter(IText, 'fontVariant', NORMAL);
-  /**
-   * get/set padding
-   * @name Konva.Text#padding
-   * @method
-   * @param {Number} padding
-   * @returns {Number}
-   * @example
-   * // get padding
-   * var padding = text.padding();
-   *
-   * // set padding to 10 pixels
-   * text.padding(10);
-   */
-  Factory.addGetterSetter(IText, 'padding', 0, getNumberValidator());
-  /**
-   * get/set horizontal align of text.  Can be 'left', 'center', 'right' or 'justify'
-   * @name Konva.Text#align
-   * @method
-   * @param {String} align
-   * @returns {String}
-   * @example
-   * // get text align
-   * var align = text.align();
-   *
-   * // center text
-   * text.align('center');
-   *
-   * // align text to right
-   * text.align('right');
-   */
-  Factory.addGetterSetter(IText, 'align', LEFT);
-  /**
-   * get/set vertical align of text.  Can be 'top', 'middle', 'bottom'.
-   * @name Konva.Text#verticalAlign
-   * @method
-   * @param {String} verticalAlign
-   * @returns {String}
-   * @example
-   * // get text vertical align
-   * var verticalAlign = text.verticalAlign();
-   *
-   * // center text
-   * text.verticalAlign('middle');
-   */
-  Factory.addGetterSetter(IText, 'verticalAlign', TOP);
-  /**
-   * get/set line height.  The default is 1.
-   * @name Konva.Text#lineHeight
-   * @method
-   * @param {Number} lineHeight
-   * @returns {Number}
-   * @example
-   * // get line height
-   * var lineHeight = text.lineHeight();
-   *
-   * // set the line height
-   * text.lineHeight(2);
-   */
-  Factory.addGetterSetter(IText, 'lineHeight', 1, getNumberValidator());
-  /**
-   * get/set wrap.  Can be "word", "char", or "none". Default is "word".
-   * In "word" wrapping any word still can be wrapped if it can't be placed in the required width
-   * without breaks.
-   * @name Konva.Text#wrap
-   * @method
-   * @param {String} wrap
-   * @returns {String}
-   * @example
-   * // get wrap
-   * var wrap = text.wrap();
-   *
-   * // set wrap
-   * text.wrap('word');
-   */
-  Factory.addGetterSetter(IText, 'wrap', WORD);
-  /**
-   * get/set ellipsis. Can be true or false. Default is false. If ellipses is true,
-   * Konva will add "..." at the end of the text if it doesn't have enough space to write characters.
-   * That is possible only when you limit both width and height of the text
-   * @name Konva.Text#ellipsis
-   * @method
-   * @param {Boolean} ellipsis
-   * @returns {Boolean}
-   * @example
-   * // get ellipsis param, returns true or false
-   * var ellipsis = text.ellipsis();
-   *
-   * // set ellipsis
-   * text.ellipsis(true);
-   */
-  Factory.addGetterSetter(IText, 'ellipsis', false, getBooleanValidator());
-  /**
-   * set letter spacing property. Default value is 0.
-   * @name Konva.Text#letterSpacing
-   * @method
-   * @param {Number} letterSpacing
-   */
-  Factory.addGetterSetter(IText, 'letterSpacing', 0, getNumberValidator());
-  /**
-   * get/set text
-   * @name Konva.Text#text
-   * @method
-   * @param {String} text
-   * @returns {String}
-   * @example
-   * // get text
-   * var text = text.text();
-   *
-   * // set text
-   * text.text('Hello world!');
-   */
-  Factory.addGetterSetter(IText, 'text', '', getStringValidator());
-  /**
-   * get/set text decoration of a text.  Possible values are 'underline', 'line-through' or combination of these values separated by space
-   * @name Konva.Text#textDecoration
-   * @method
-   * @param {String} textDecoration
-   * @returns {String}
-   * @example
-   * // get text decoration
-   * var textDecoration = text.textDecoration();
-   *
-   * // underline text
-   * text.textDecoration('underline');
-   *
-   * // strike text
-   * text.textDecoration('line-through');
-   *
-   * // underline and strike text
-   * text.textDecoration('underline line-through');
-   */
-  Factory.addGetterSetter(IText, 'textDecoration', '');
-  Factory.addGetterSetter(IText, 'styles', null);
 
   /*
    the Gauss filter
@@ -19351,7 +18520,7 @@
       TextPath,
       Transformer,
       Wedge,
-      IText,
+      //IText,
       /**
        * @namespace Filters
        * @memberof Konva

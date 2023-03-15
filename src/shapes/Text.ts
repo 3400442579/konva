@@ -210,11 +210,17 @@ export class Text extends Shape<TextConfig> {
       shouldLineThrough = textDecoration.indexOf('line-through') !== -1,
       n;
 
+    var stroke = this.stroke(),
+      strokeWidth = this.strokeWidth();
+    var strokeEnabled = this.strokeEnabled();
+
     var translateY = 0;
     var translateY = lineHeightPx / 2;
 
     var lineTranslateX = 0;
     var lineTranslateY = 0;
+
+
 
     context.setAttr('font', this._getContextFont());
 
@@ -323,35 +329,55 @@ export class Text extends Shape<TextConfig> {
             var subFontVariant = this._getStyleValueOfProperty(sty, "fontVariant", true);
             var subFontSize = this._getStyleValueOfProperty(sty, "fontSize", false);
             var subFontFamily = this._getStyleValueOfProperty(sty, "fontFamily", false);
-
             var subfill = this._getStyleValueOfProperty(sty, "fill", false);
-            var subStrokeWidth = this._getStyleValueOfProperty(sty, "strokeWidth", true);
-            var subStroke = this._getStyleValueOfProperty(sty, "stroke", false);
 
-            var sub = false;
+            var bfont = false, bstroke = false, bstrokeWidth = false, bfill = false;
             if (subFontStyle || subFontSize != null || subFontFamily) {
-              sub = true;
+              bfont = true;
               subFontStyle = subFontStyle ?? this.fontStyle();
               subFontFamily = subFontFamily ?? this.fontFamily();
               subFontSize = subFontSize ?? this.fontSize();
               context.setAttr('font', this._getContextFont2(subFontStyle, subFontVariant, subFontSize, subFontFamily));
             }
-            if (subfill) context.setAttr('fillStyle', subfill);
-            if (subStroke && subStrokeWidth > 0) {
-              context.setAttr('lineWidth', subStrokeWidth);
-              context.setAttr('strokeStyle', subStroke);
-              console.info("subStroke")
+            if (subfill) {
+              this.attrs.fill = subfill;
+              bfill = true;
             }
-            var deltaY = this._getStyleValueOfProperty(sty, "deltaY", false)
-            this._partialTextX = lineTranslateX;
+
+            if (strokeEnabled) {
+              var subStroke = this._getStyleValueOfProperty(sty, "stroke", false);
+              var subStrokeWidth = this._getStyleValueOfProperty(sty, "strokeWidth", false);
+
+              if (subStrokeWidth != null) {
+                this.attrs.strokeWidth = subStrokeWidth;
+                bstrokeWidth = true;
+              }
+              if (subStroke) {
+                this.attrs.stroke = subStroke;
+                bstroke = true;
+              }
+              if (bstroke || bstrokeWidth)
+                this._clearCache("hasStroke");
+            }
+            var deltaY = this._getStyleValueOfProperty(sty, "deltaY", false);
+            var deltaX = this._getStyleValueOfProperty(sty, "deltaX", false)
+            this._partialTextX = lineTranslateX + deltaX;
             this._partialTextY = translateY + lineTranslateY + deltaY ?? 0;
             context.fillStrokeShape(this);
 
             context.restore();
-            if (sub)
+            if (bfont)
               lineTranslateX += this._measureSize2(letter, subFontStyle, subFontVariant, subFontSize, subFontFamily).width;
             else
               lineTranslateX += this.measureSize(letter).width;
+            lineTranslateX += deltaX;
+
+            if (bstroke)
+              this.attrs.stroke = stroke;
+            if (bstrokeWidth)
+              this.attrs.strokeWidth = strokeWidth;
+            if (bfill)
+              this.attrs.fill = fill;
 
           } else {
             this._partialTextX = lineTranslateX;
@@ -359,8 +385,9 @@ export class Text extends Shape<TextConfig> {
             context.fillStrokeShape(this);
             lineTranslateX += this.measureSize(letter).width;
           }
-          console.info("=====")
+
         }
+
       } else {
         array.length = 0;
         this._partialTextX = lineTranslateX;
@@ -374,6 +401,7 @@ export class Text extends Shape<TextConfig> {
         translateY += lineHeightPx;
       }
     }
+
   }
   _hitFunc(context) {
     var width = this.getWidth(),
