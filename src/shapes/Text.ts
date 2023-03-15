@@ -370,7 +370,7 @@ export class Text extends Shape<TextConfig> {
               lineTranslateX += this._measureSize2(letter, subFontStyle, subFontVariant, subFontSize, subFontFamily).width;
             else
               lineTranslateX += this.measureSize(letter).width;
-            lineTranslateX += deltaX;
+            lineTranslateX += (letterSpacing + deltaX);
 
             if (bstroke)
               this.attrs.stroke = stroke;
@@ -383,7 +383,7 @@ export class Text extends Shape<TextConfig> {
             this._partialTextX = lineTranslateX;
             this._partialTextY = translateY + lineTranslateY;
             context.fillStrokeShape(this);
-            lineTranslateX += this.measureSize(letter).width;
+            lineTranslateX += this.measureSize(letter).width + letterSpacing;
           }
 
         }
@@ -557,6 +557,14 @@ export class Text extends Shape<TextConfig> {
       (length ? letterSpacing * (length - 1) : 0)
     );
   }
+  _getTextWidth2(text,start) {
+    var letterSpacing = this.letterSpacing();
+    var length = text.length;
+    return (
+      getDummyContext().measureText(text).width +
+      (length ? letterSpacing * (length - 1) : 0)
+    );
+  }
   _setTextData() {
     var lines = this.text().split('\n'),
       fontSize = +this.fontSize(),
@@ -693,6 +701,11 @@ export class Text extends Shape<TextConfig> {
     //     maxTextWidth = Math.max(maxTextWidth, this.textArr[j].width);
     // }
     this.textWidth = textWidth;
+  }
+  _calculateStyles(){
+    var lines = this.text().split('\n'),styles=this.styles();
+    
+
   }
 
   /**

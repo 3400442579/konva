@@ -13654,7 +13654,7 @@
                               lineTranslateX += this._measureSize2(letter, subFontStyle, subFontVariant, subFontSize, subFontFamily).width;
                           else
                               lineTranslateX += this.measureSize(letter).width;
-                          lineTranslateX += deltaX;
+                          lineTranslateX += (letterSpacing + deltaX);
                           if (bstroke)
                               this.attrs.stroke = stroke;
                           if (bstrokeWidth)
@@ -13666,7 +13666,7 @@
                           this._partialTextX = lineTranslateX;
                           this._partialTextY = translateY + lineTranslateY;
                           context.fillStrokeShape(this);
-                          lineTranslateX += this.measureSize(letter).width;
+                          lineTranslateX += this.measureSize(letter).width + letterSpacing;
                       }
                   }
               }
