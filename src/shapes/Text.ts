@@ -1,4 +1,5 @@
 import { Util } from '../Util';
+import { Context } from '../Context';
 import { Factory } from '../Factory';
 import { Shape, ShapeConfig } from '../Shape';
 import { Konva } from '../Global';
@@ -110,23 +111,23 @@ function normalizeFontFamily(fontFamily: string) {
     .join(', ');
 }
 
-var dummyContext;
+var dummyContext: CanvasRenderingContext2D;
 function getDummyContext() {
   if (dummyContext) {
     return dummyContext;
   }
-  dummyContext = Util.createCanvasElement().getContext(CONTEXT_2D);
+  dummyContext = Util.createCanvasElement().getContext(CONTEXT_2D) as CanvasRenderingContext2D;
   return dummyContext;
 }
 
-function _fillFunc(context) {
+function _fillFunc(context: Context) {
   context.fillText(this._partialText, this._partialTextX, this._partialTextY);
 }
-function _strokeFunc(context) {
+function _strokeFunc(context: Context) {
   context.strokeText(this._partialText, this._partialTextX, this._partialTextY);
 }
 
-function checkDefaultFill(config) {
+function checkDefaultFill(config: TextConfig) {
   config = config || {};
 
   // set default color to black
@@ -188,7 +189,7 @@ export class Text extends Shape<TextConfig> {
     this._setTextData();
   }
 
-  _sceneFunc(context) {
+  _sceneFunc(context: Context) {
     var textArr = this.textArr,
       textArrLen = textArr.length;
 
@@ -403,7 +404,7 @@ export class Text extends Shape<TextConfig> {
     }
 
   }
-  _hitFunc(context) {
+  _hitFunc(context: Context) {
     var width = this.getWidth(),
       height = this.getHeight();
 
@@ -412,7 +413,7 @@ export class Text extends Shape<TextConfig> {
     context.closePath();
     context.fillStrokeShape(this);
   }
-  setText(text) {
+  setText(text: string) {
     var str = Util._isString(text)
       ? text
       : text === null || text === undefined
@@ -537,7 +538,7 @@ export class Text extends Shape<TextConfig> {
     return !!ts;
   }
 
-  _addTextLine(line) {
+  _addTextLine(line: string) {
     const align = this.align();
     if (align === JUSTIFY) {
       line = line.trim();
@@ -549,7 +550,7 @@ export class Text extends Shape<TextConfig> {
       lastInParagraph: false,
     });
   }
-  _getTextWidth(text) {
+  _getTextWidth(text: string) {
     var letterSpacing = this.letterSpacing();
     var length = text.length;
     return (
@@ -557,7 +558,7 @@ export class Text extends Shape<TextConfig> {
       (length ? letterSpacing * (length - 1) : 0)
     );
   }
-  _getTextWidth2(text,start) {
+  _getTextWidth2(text: string,start:number) {
     var letterSpacing = this.letterSpacing();
     var length = text.length;
     return (
