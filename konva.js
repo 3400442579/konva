@@ -9287,7 +9287,7 @@
           this.node = node;
           this._id = idCounter++;
           var layers = null;
-          if (typeof config.duration === 'undefined' || config.autoDraw) {
+          if (typeof config.autoDraw === 'undefined' || config.autoDraw) {
               layers =
                   node.getLayer() ||
                       (node instanceof Konva$2['Stage'] ? node.getLayers() : null);

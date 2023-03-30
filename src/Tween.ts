@@ -222,7 +222,7 @@ export class Tween {
     this._id = idCounter++;
 
     var layers = null;
-    if (typeof config.duration === 'undefined' || config.autoDraw) {
+    if (typeof config.autoDraw === 'undefined' || config.autoDraw) {
       layers =
         node.getLayer() ||
         (node instanceof Konva['Stage'] ? node.getLayers() : null);
