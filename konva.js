@@ -8,7 +8,7 @@
    * Konva JavaScript Framework v8.4.3
    * http://konvajs.org/
    * Licensed under the MIT
-   * Date: Wed Mar 15 2023
+   * Date: Thu Mar 30 2023
    *
    * Original work Copyright (C) 2011 - 2013 by Eric Rowell (KineticJS)
    * Modified work Copyright (C) 2014 - present by Anton Lavrenov (Konva)
@@ -9124,6 +9124,12 @@
       easing: 1,
       onFinish: 1,
       yoyo: 1,
+      autoDraw: 1,
+      onUpdate: 1,
+      onPlay: 1,
+      onReverse: 1,
+      onPause: 1,
+      onReset: 1,
   }, PAUSED = 1, PLAYING = 2, REVERSING = 3, idCounter = 0, colorAttrs = ['fill', 'stroke', 'shadowColor'];
   class TweenEngine {
       constructor(prop, propFunc, func, begin, finish, duration, yoyo) {
@@ -9280,10 +9286,14 @@
           }
           this.node = node;
           this._id = idCounter++;
-          var layers = node.getLayer() ||
-              (node instanceof Konva$2['Stage'] ? node.getLayers() : null);
-          if (!layers) {
-              Util.error('Tween constructor have `node` that is not in a layer. Please add node into layer first.');
+          var layers = null;
+          if (typeof config.duration === 'undefined' || config.autoDraw) {
+              layers =
+                  node.getLayer() ||
+                      (node instanceof Konva$2['Stage'] ? node.getLayers() : null);
+              if (!layers) {
+                  Util.error('Tween constructor have `node` that is not in a layer. Please add node into layer first.');
+              }
           }
           this.anim = new Animation(function () {
               that.tween.onEnterFrame();
@@ -13596,7 +13606,7 @@
                   context.restore();
               }
               var array = stringToArray(text);
-              if (letterSpacing !== 0 || align === JUSTIFY || this._styleIsNotEmpty(cindex, cindex + array.length)) {
+              if (letterSpacing !== 0 || align === JUSTIFY || this._styleIsNotEmpty(cindex, cindex + array.length - 1)) {
                   //   var words = text.split(' ');
                   spacesNumber = text.split(' ').length - 1;
                   for (var li = 0; li < array.length; li++) {
@@ -13611,7 +13621,8 @@
                       }
                       this._partialText = letter;
                       var sty = this._getStyleDeclaration(cindex++);
-                      if (!!sty) {
+                      if (sty != null) {
+                          console.info("a");
                           context.save();
                           var subFontStyle = this._getStyleValueOfProperty(sty, "fontStyle", false);
                           var subFontVariant = this._getStyleValueOfProperty(sty, "fontVariant", true);
@@ -13671,12 +13682,14 @@
                   }
               }
               else {
+                  cindex += array.length;
                   array.length = 0;
                   this._partialTextX = lineTranslateX;
                   this._partialTextY = translateY + lineTranslateY;
                   this._partialText = text;
                   context.fillStrokeShape(this);
               }
+              cindex++; //\n
               context.restore();
               if (textArrLen > 1) {
                   translateY += lineHeightPx;
@@ -13781,20 +13794,24 @@
               return null;
       }
       _getStyleDeclaration(index) {
-          var stys = this.styles();
-          var ts = null;
+          const stys = this.attrs.styles;
+          let ts = null;
           if (!!stys) {
               ts = stys.find(o => index >= o.start && (!o.end || index <= o.end));
           }
           return ts;
       }
       _styleIsNotEmpty(start, end) {
-          var stys = this.styles();
-          var ts = null;
+          const stys = this.attrs.styles;
           if (!!stys) {
-              ts = stys.find(o => o.start >= start && o.start <= end);
+              let ts = null;
+              for (let index = start; index <= end; index++) {
+                  ts = stys.find(o => index >= o.start && (!o.end || index <= o.end));
+                  if (!!ts)
+                      return true;
+              }
           }
-          return !!ts;
+          return false;
       }
       _addTextLine(line) {
           const align = this.align();
@@ -13814,6 +13831,14 @@
           return (getDummyContext().measureText(text).width +
               (length ? letterSpacing * (length - 1) : 0));
       }
+      /*   _getTextWidth2(text: string, start: number) {
+          var letterSpacing = this.letterSpacing();
+          var length = text.length;
+          return (
+            getDummyContext().measureText(text).width +
+            (length ? letterSpacing * (length - 1) : 0)
+          );
+        } */
       _setTextData() {
           var lines = this.text().split('\n'), fontSize = +this.fontSize(), textWidth = 0, lineHeightPx = this.lineHeight() * fontSize, width = this.attrs.width, height = this.attrs.height, fixedWidth = width !== AUTO && width !== undefined, fixedHeight = height !== AUTO && height !== undefined, padding = this.padding(), maxWidth = width - padding * 2, maxHeightPx = height - padding * 2, currentHeightPx = 0, wrap = this.wrap(), 
           // align = this.align(),
@@ -14201,6 +14226,28 @@
    * text.textDecoration('underline line-through');
    */
   Factory.addGetterSetter(Text, 'textDecoration', '');
+  /**
+   * get/set text styles of a text.
+   * @name Konva.Text#textDecoration
+   * @method
+   * @param {TextStyle} styles
+   * @returns {String}
+   * @example
+   * // set styles
+   * text.styles([{ start: 0, fontFamily: 'Roboto' }]);
+   */
+  /* const defaultStyle: TextStyle = {
+    start: 0,
+    fill: 'black',
+    stroke: 'black',
+    fontFamily: 'Arial',
+    fontSize: 12,
+    fontStyle: 'normal',
+    //fontVariant: 'normal',
+    //textDecoration: '',
+    deltaX: 0,
+    deltaY: 0,
+  } */
   Factory.addGetterSetter(Text, 'styles', null);
 
   var EMPTY_STRING = '', NORMAL = 'normal';
