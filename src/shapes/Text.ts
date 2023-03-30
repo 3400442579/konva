@@ -2,7 +2,7 @@ import { Util } from '../Util';
 import { Context } from '../Context';
 import { Factory } from '../Factory';
 import { Shape, ShapeConfig } from '../Shape';
-import { Konva } from '../Global';
+//import { Konva } from '../Global';
 import {
   getNumberValidator,
   getStringValidator,
@@ -307,7 +307,7 @@ export class Text extends Shape<TextConfig> {
       }
 
       var array = stringToArray(text);
-      if (letterSpacing !== 0 || align === JUSTIFY || this._styleIsNotEmpty(cindex, cindex + array.length)) {
+      if (letterSpacing !== 0 || align === JUSTIFY || this._styleIsNotEmpty(cindex, cindex + array.length - 1)) {
         //   var words = text.split(' ');
         spacesNumber = text.split(' ').length - 1;
 
@@ -322,9 +322,10 @@ export class Text extends Shape<TextConfig> {
             // );
           }
           this._partialText = letter;
-
           var sty = this._getStyleDeclaration(cindex++);
-          if (!!sty) {
+
+          if (sty != null) {
+            console.info("a");
             context.save();
             var subFontStyle = this._getStyleValueOfProperty(sty, "fontStyle", false);
             var subFontVariant = this._getStyleValueOfProperty(sty, "fontVariant", true);
@@ -386,10 +387,10 @@ export class Text extends Shape<TextConfig> {
             context.fillStrokeShape(this);
             lineTranslateX += this.measureSize(letter).width + letterSpacing;
           }
-
         }
 
       } else {
+        cindex += array.length;
         array.length = 0;
         this._partialTextX = lineTranslateX;
         this._partialTextY = translateY + lineTranslateY;
@@ -397,6 +398,8 @@ export class Text extends Shape<TextConfig> {
 
         context.fillStrokeShape(this);
       }
+
+      cindex++;//\n
       context.restore();
       if (textArrLen > 1) {
         translateY += lineHeightPx;
@@ -518,24 +521,25 @@ export class Text extends Shape<TextConfig> {
       return null;
   }
   _getStyleDeclaration(index: number) {
-    var stys = this.styles();
-
-    var ts = null;
+    const stys = this.attrs.styles;
+    let ts = null;
     if (!!stys) {
       ts = stys.find(o => index >= o.start && (!o.end || index <= o.end));
     }
-
     return ts;
   }
   _styleIsNotEmpty(start: number, end: number) {
-    var stys = this.styles();
+    const stys = this.attrs.styles
 
-    var ts = null;
     if (!!stys) {
-      ts = stys.find(o => o.start >= start && o.start <= end);
+      let ts = null;
+      for (let index = start; index <= end; index++) {
+        ts = stys.find(o => index >= o.start && (!o.end || index <= o.end));
+        if (!!ts) return true;
+      }
     }
 
-    return !!ts;
+    return false;
   }
 
   _addTextLine(line: string) {
@@ -558,14 +562,15 @@ export class Text extends Shape<TextConfig> {
       (length ? letterSpacing * (length - 1) : 0)
     );
   }
-  _getTextWidth2(text: string,start:number) {
-    var letterSpacing = this.letterSpacing();
-    var length = text.length;
-    return (
-      getDummyContext().measureText(text).width +
-      (length ? letterSpacing * (length - 1) : 0)
-    );
-  }
+  /*   _getTextWidth2(text: string, start: number) {
+      var letterSpacing = this.letterSpacing();
+      var length = text.length;
+      return (
+        getDummyContext().measureText(text).width +
+        (length ? letterSpacing * (length - 1) : 0)
+      );
+    } */
+
   _setTextData() {
     var lines = this.text().split('\n'),
       fontSize = +this.fontSize(),
@@ -703,11 +708,7 @@ export class Text extends Shape<TextConfig> {
     // }
     this.textWidth = textWidth;
   }
-  _calculateStyles(){
-    var lines = this.text().split('\n'),styles=this.styles();
-    
 
-  }
 
   /**
    * whether to handle ellipsis, there are two cases:
@@ -1054,7 +1055,7 @@ Factory.addGetterSetter(Text, 'textDecoration', '');
  * // set styles
  * text.styles([{ start: 0, fontFamily: 'Roboto' }]);
  */
-const defaultStyle: TextStyle = {
+/* const defaultStyle: TextStyle = {
   start: 0,
   fill: 'black',
   stroke: 'black',
@@ -1065,5 +1066,5 @@ const defaultStyle: TextStyle = {
   //textDecoration: '',
   deltaX: 0,
   deltaY: 0,
-}
+} */
 Factory.addGetterSetter(Text, 'styles', null);
