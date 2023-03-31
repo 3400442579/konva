@@ -10,12 +10,12 @@ var blacklist = {
   easing: 1,
   onFinish: 1,
   yoyo: 1,
-  autoDraw:1,
-  onUpdate:1,
-  onPlay:1,
-  onReverse:1,
-  onPause:1,
-  onReset:1,
+  autoDraw: 1,
+  onUpdate: 1,
+  onPlay: 1,
+  onReverse: 1,
+  onPause: 1,
+  onReset: 1,
 },
   PAUSED = 1,
   PLAYING = 2,
@@ -222,7 +222,7 @@ export class Tween {
     this._id = idCounter++;
 
     var layers = null;
-    if (typeof config.autoDraw === 'undefined' || config.autoDraw) {
+    if (config.autoDraw) {
       layers =
         node.getLayer() ||
         (node instanceof Konva['Stage'] ? node.getLayers() : null);

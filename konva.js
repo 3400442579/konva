@@ -8,7 +8,7 @@
    * Konva JavaScript Framework v8.4.3
    * http://konvajs.org/
    * Licensed under the MIT
-   * Date: Thu Mar 30 2023
+   * Date: Fri Mar 31 2023
    *
    * Original work Copyright (C) 2011 - 2013 by Eric Rowell (KineticJS)
    * Modified work Copyright (C) 2014 - present by Anton Lavrenov (Konva)
@@ -9287,7 +9287,7 @@
           this.node = node;
           this._id = idCounter++;
           var layers = null;
-          if (typeof config.autoDraw === 'undefined' || config.autoDraw) {
+          if (config.autoDraw) {
               layers =
                   node.getLayer() ||
                       (node instanceof Konva$2['Stage'] ? node.getLayers() : null);
@@ -13534,7 +13534,7 @@
           this._setTextData();
       }
       _sceneFunc(context) {
-          var _a;
+          var _a, _b;
           var textArr = this.textArr, textArrLen = textArr.length;
           if (!this.text()) {
               return;
@@ -13621,20 +13621,20 @@
                       }
                       this._partialText = letter;
                       var sty = this._getStyleDeclaration(cindex++);
-                      if (sty != null) {
-                          console.info("a");
+                      if (sty) {
                           context.save();
                           var subFontStyle = this._getStyleValueOfProperty(sty, "fontStyle", false);
-                          var subFontVariant = this._getStyleValueOfProperty(sty, "fontVariant", true);
+                          var subFontVariant = this._getStyleValueOfProperty(sty, "fontVariant", false);
                           var subFontSize = this._getStyleValueOfProperty(sty, "fontSize", false);
                           var subFontFamily = this._getStyleValueOfProperty(sty, "fontFamily", false);
                           var subfill = this._getStyleValueOfProperty(sty, "fill", false);
                           var bfont = false, bstroke = false, bstrokeWidth = false, bfill = false;
-                          if (subFontStyle || subFontSize != null || subFontFamily) {
+                          if (subFontStyle || subFontSize || subFontFamily) {
                               bfont = true;
                               subFontStyle = subFontStyle !== null && subFontStyle !== void 0 ? subFontStyle : this.fontStyle();
                               subFontFamily = subFontFamily !== null && subFontFamily !== void 0 ? subFontFamily : this.fontFamily();
                               subFontSize = subFontSize !== null && subFontSize !== void 0 ? subFontSize : this.fontSize();
+                              subFontVariant = subFontVariant !== null && subFontVariant !== void 0 ? subFontVariant : this.fontVariant();
                               context.setAttr('font', this._getContextFont2(subFontStyle, subFontVariant, subFontSize, subFontFamily));
                           }
                           if (subfill) {
@@ -13655,10 +13655,10 @@
                               if (bstroke || bstrokeWidth)
                                   this._clearCache("hasStroke");
                           }
-                          var deltaY = this._getStyleValueOfProperty(sty, "deltaY", false);
-                          var deltaX = this._getStyleValueOfProperty(sty, "deltaX", false);
+                          var deltaY = (_a = this._getStyleValueOfProperty(sty, "deltaY", false)) !== null && _a !== void 0 ? _a : 0;
+                          var deltaX = (_b = this._getStyleValueOfProperty(sty, "deltaX", false)) !== null && _b !== void 0 ? _b : 0;
                           this._partialTextX = lineTranslateX + deltaX;
-                          this._partialTextY = (_a = translateY + lineTranslateY + deltaY) !== null && _a !== void 0 ? _a : 0;
+                          this._partialTextY = translateY + lineTranslateY + deltaY;
                           context.fillStrokeShape(this);
                           context.restore();
                           if (bfont)
@@ -13785,21 +13785,21 @@
               normalizeFontFamily(fontFamily));
       }
       _getStyleValueOfProperty(textStyle, property, def) {
-          if (typeof textStyle[property] !== 'undefined') {
-              return textStyle[property];
+          let v = textStyle[property];
+          if (typeof v === undefined && v === null) {
+              if (def)
+                  v = this.getAttr(property);
           }
-          if (def != false)
-              return this.getAttr(property);
-          else
-              return null;
+          return v;
       }
       _getStyleDeclaration(index) {
           const stys = this.attrs.styles;
-          let ts = null;
           if (!!stys) {
-              ts = stys.find(o => index >= o.start && (!o.end || index <= o.end));
+              let ts = stys.filter((o) => index >= o.start && (!o.end || index <= o.end));
+              if (ts.length > 0)
+                  return Object.assign({}, ...ts);
           }
-          return ts;
+          return null;
       }
       _styleIsNotEmpty(start, end) {
           const stys = this.attrs.styles;
