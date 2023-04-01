@@ -330,7 +330,7 @@ export class Text extends Shape<TextConfig> {
             var subFontSize = this._getStyleValueOfProperty(sty, "fontSize", false);
             var subFontFamily = this._getStyleValueOfProperty(sty, "fontFamily", false);
             var subfill = this._getStyleValueOfProperty(sty, "fill", false);
-           
+
             var bfont = false, bstroke = false, bstrokeWidth = false, bfill = false;
             if (subFontStyle || subFontSize || subFontFamily) {
               bfont = true;
@@ -523,7 +523,7 @@ export class Text extends Shape<TextConfig> {
   _getStyleDeclaration(index: number) {
     const stys = this.attrs.styles;
     if (!!stys) {
-      let ts = stys.filter((o) => index >= o.start && (!o.end || index <= o.end));
+      let ts = stys.filter((o) => index >= o.start && (o.end === undefined || index <= o.end));
       if (ts.length > 0)
         return Object.assign({}, ...ts);
     }
@@ -535,7 +535,7 @@ export class Text extends Shape<TextConfig> {
     if (!!stys) {
       let ts = null;
       for (let index = start; index <= end; index++) {
-        ts = stys.find(o => index >= o.start && (!o.end || index <= o.end));
+        ts = stys.find(o => index >= o.start && (o.end == undefined || index <= o.end));
         if (!!ts) return true;
       }
     }

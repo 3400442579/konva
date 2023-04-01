@@ -8,7 +8,7 @@
    * Konva JavaScript Framework v8.4.3
    * http://konvajs.org/
    * Licensed under the MIT
-   * Date: Fri Mar 31 2023
+   * Date: Sat Apr 01 2023
    *
    * Original work Copyright (C) 2011 - 2013 by Eric Rowell (KineticJS)
    * Modified work Copyright (C) 2014 - present by Anton Lavrenov (Konva)
@@ -13795,7 +13795,7 @@
       _getStyleDeclaration(index) {
           const stys = this.attrs.styles;
           if (!!stys) {
-              let ts = stys.filter((o) => index >= o.start && (!o.end || index <= o.end));
+              let ts = stys.filter((o) => index >= o.start && (o.end === undefined || index <= o.end));
               if (ts.length > 0)
                   return Object.assign({}, ...ts);
           }
@@ -13806,7 +13806,7 @@
           if (!!stys) {
               let ts = null;
               for (let index = start; index <= end; index++) {
-                  ts = stys.find(o => index >= o.start && (!o.end || index <= o.end));
+                  ts = stys.find(o => index >= o.start && (o.end == undefined || index <= o.end));
                   if (!!ts)
                       return true;
               }
